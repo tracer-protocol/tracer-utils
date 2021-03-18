@@ -1,0 +1,35 @@
+{
+  "name": "@tracer-protocol/tracer-utils",
+  "version": "0.0.1",
+  "description": "Helpful utils",
+  "main": "dist/index.js",
+  "dependencies": {
+    "web3": "^1.3.4"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-runtime": "^6.26.0",
+    "mocha": "^8.3.2",
+    "typescript": "^2.8.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "typescript",
+    "npm"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha"
+  },
+  "repository": "git+https://github.com/tetther1122/job-board.git",
+  "author": "dospore",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tracer-protocol/tracer-utils/issues"
+  },
+  "homepage": "https://github.com/tracer-protocol/tracer-utils#readme",
+  "private": false
+}
