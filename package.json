@@ -1,5 +1,5 @@
 {
-  "name": "@tracer-protocol/tracer-utils",
+  "name": "@lions-mane/tracer-utils",
   "version": "0.0.1",
   "description": "Helpful utils",
   "main": "dist/index.js",
