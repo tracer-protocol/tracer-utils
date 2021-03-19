@@ -4,6 +4,7 @@
   "description": "Helpful utils",
   "main": "dist/index.js",
   "dependencies": {
+    "node-fetch": "^2.6.1",
     "web3": "^1.3.4"
   },
   "devDependencies": {
