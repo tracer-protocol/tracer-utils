@@ -24,7 +24,7 @@ const submitOrder = async (market: string, order: SignedOrder) => {
     return fetch(`${OMEAddress}/book/${market}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
 }
 
-export default {
+export {
     orderToOMEOrder,
     createMarket,
     submitOrder

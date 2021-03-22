@@ -69,11 +69,5 @@ const signOrders = (web3, orders, traderAddress) => __awaiter(void 0, void 0, vo
         };
     }));
 });
-export default {
-    signOrders,
-    signOrder,
-    generateDomainData,
-    domain,
-    limitOrder
-};
+export { signOrders, signOrder, generateDomainData, domain, limitOrder };
 //# sourceMappingURL=Signing.js.map
