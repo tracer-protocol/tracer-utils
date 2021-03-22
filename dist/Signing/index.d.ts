@@ -1,2 +1,2 @@
 export * from './Signing';
-export * from './types';
+export * from '../Types/types';
