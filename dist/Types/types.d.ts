@@ -61,6 +61,20 @@ export declare type OrderData = {
     targetTracer: string;
     nonce: number;
 };
+export declare type Signature = {
+    sigR: string;
+    sigS: string;
+    sigV: number;
+};
+export declare type SignedOrder = {
+    id: string;
+    address: string;
+    side: string;
+    price: number | string;
+    amount: number | string;
+    expiration: number | string;
+    signed_data: string;
+};
 export declare type SigningData = {
     domain: DomainData;
     primaryType: "LimitOrder";

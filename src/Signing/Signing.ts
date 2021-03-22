@@ -1,6 +1,6 @@
 import { 
     DomainDataType, LimitOrderDataType, DomainData,
-    OrderData, SigningData, Signature, SignedOrder
+    OrderData, SigningData, Signature
 } from '../Types/types';
 
 /* Support types for signing */

@@ -8,6 +8,10 @@
     "allowJs": false,
     "jsx": "react",
     "declaration": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "importHelpers": true,
+    "removeComments": true,
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
@@ -19,6 +23,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "example", "rollup.config.js"]
+  "include": ["src/*"],
+  "exclude": [
+    "node_modules/*",
+    "dist",
+    "./node_modules/@types/node/index.d.ts"
+  ]
 }
