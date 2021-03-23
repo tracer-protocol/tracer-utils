@@ -1,13 +1,4 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-/* Support types for signing */
+import { __awaiter } from "tslib";
 const domain = [
     { name: "name", type: "string" },
     { name: "version", type: "string" },
@@ -23,15 +14,14 @@ const limitOrder = [
     { name: "targetTracer", type: "address" },
     { name: "nonce", type: "uint256" },
 ];
-const generateDomainData = (trader_address, chainId) => {
+const generateDomainData = (traderAddress, chainId) => {
     return ({
         name: "Tracer Protocol",
         version: "1.0",
         chainId: chainId ? chainId : 1337,
-        verifyingContract: trader_address,
+        verifyingContract: traderAddress,
     });
 };
-/* Helpers for signing */
 const signOrder = (web3, signingAccount, data) => __awaiter(void 0, void 0, void 0, function* () {
     const signer = web3.utils.toChecksumAddress(signingAccount);
     return new Promise((resolve, reject) => {
@@ -50,12 +40,15 @@ const signOrder = (web3, signingAccount, data) => __awaiter(void 0, void 0, void
             let parsedSig = result.result.substring(2);
             const r = "0x" + parsedSig.substring(0, 64);
             const s = "0x" + parsedSig.substring(64, 128);
-            const v = parseInt(parsedSig.substring(128, 130), 16).toString(); //130 hex = 65bytes
-            resolve([r, s, v]);
+            const v = parseInt(parsedSig.substring(128, 130), 16);
+            resolve({
+                sigR: r,
+                sigS: s,
+                sigV: v
+            });
         }));
     });
 });
-//Process and sign orders
 const signOrders = (web3, orders, traderAddress) => __awaiter(void 0, void 0, void 0, function* () {
     let _domainData = generateDomainData(traderAddress);
     return yield orders.map((order) => __awaiter(void 0, void 0, void 0, function* () {
@@ -72,15 +65,9 @@ const signOrders = (web3, orders, traderAddress) => __awaiter(void 0, void 0, vo
         let signedData = yield signOrder(web3, order.user, dataToSign);
         return {
             order: order,
-            sigR: signedData[0],
-            sigS: signedData[1],
-            sigV: signedData[2],
+            sig: signedData,
         };
     }));
 });
-export default {
-    signOrders, signOrder,
-    generateDomainData,
-    domain, limitOrder
-};
+export { signOrders, signOrder, generateDomainData, domain, limitOrder };
 //# sourceMappingURL=Signing.js.map

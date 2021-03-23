@@ -1,7 +1,7 @@
 import { 
     DomainDataType, LimitOrderDataType, DomainData,
-    OrderData, SigningData
-} from './types';
+    OrderData, SigningData, Signature
+} from '../Types/types';
 
 /* Support types for signing */
 const domain:DomainDataType = [
@@ -45,7 +45,7 @@ const generateDomainData: (traderAddress: string, chainId?: number) => DomainDat
  * @param data 
  * @returns 
  */
-const signOrder:(web3: any, signingAccount: string, data: SigningData) => Promise<[string, string, string]>
+const signOrder:(web3: any, signingAccount: string, data: SigningData) => Promise<Signature>
     = async (
         web3, signingAccount, data
     ) => {
@@ -67,8 +67,12 @@ const signOrder:(web3: any, signingAccount: string, data: SigningData) => Promis
                 let parsedSig = result.result.substring(2)
                 const r: string = "0x" + parsedSig.substring(0, 64)
                 const s: string = "0x" + parsedSig.substring(64, 128)
-                const v: string = parseInt(parsedSig.substring(128, 130), 16).toString() //130 hex = 65bytes
-                resolve ([r, s, v])
+                const v: number = parseInt(parsedSig.substring(128, 130), 16) //130 hex = 65bytes
+                resolve({
+                    sigR: r,
+                    sigS: s,
+                    sigV: v
+                })
             }
         )
     })
@@ -81,7 +85,7 @@ const signOrder:(web3: any, signingAccount: string, data: SigningData) => Promis
  * @param traderAddress address of the deployed trader contract
  * @returns the signed data along with the order
  */
-const signOrders = async (web3: any, orders: OrderData[], traderAddress: string) => {
+const signOrders: (web3: any, orders: OrderData[], traderAddress: string) => Promise<Promise<{ order: OrderData, sig: Signature }>[]> = async (web3, orders, traderAddress) => {
     let _domainData = generateDomainData(traderAddress)
     return await orders.map(async (order) => {
         let type = {
@@ -96,19 +100,19 @@ const signOrders = async (web3: any, orders: OrderData[], traderAddress: string)
             types: type,
         }
 
-        let signedData: [string, string, string] = await signOrder(web3, order.user, dataToSign)
+        let signedData: Signature = await signOrder(web3, order.user, dataToSign)
 
         return {
             order: order,
-            sigR: signedData[0],
-            sigS: signedData[1],
-            sigV: signedData[2],
+            sig: signedData,
         }
     })
 }
 
-export default {
-    signOrders, signOrder, 
+export {
+    signOrders, 
+    signOrder, 
     generateDomainData,
-    domain, limitOrder
+    domain,
+    limitOrder
 }
