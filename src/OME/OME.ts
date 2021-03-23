@@ -1,4 +1,3 @@
-const OMEAddress = "http://localhost:8989"
 const fetch = require("node-fetch")
 import { OrderData, Signature, SignedOrder } from '../Types/types';
 
@@ -16,12 +15,12 @@ const orderToOMEOrder:(web3: any,  order: OrderData, sig: Signature) => SignedOr
 }
 
 
-const createMarket = async (market: string) => {
-    return fetch(`${OMEAddress}/book`, { method: "POST", body: JSON.stringify({market: market}), headers: { 'Content-Type': 'application/json' } })
+const createMarket = async (market: string, omeAddress: string) => {
+    return fetch(`${omeAddress}/book`, { method: "POST", body: JSON.stringify({market: market}), headers: { 'Content-Type': 'application/json' } })
 }
 
-const submitOrder = async (market: string, order: SignedOrder) => {
-    return fetch(`${OMEAddress}/book/${market}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
+const submitOrder = async (market: string, order: SignedOrder, omeAddress: string) => {
+    return fetch(`${omeAddress}/book/${market}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
 }
 
 export {
