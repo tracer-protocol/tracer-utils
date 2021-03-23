@@ -110,7 +110,7 @@ const signOrders: (web3: any, orders: OrderData[], traderAddress: string) => Pro
 }
 
 export {
-    signOrders, 
+    signOrders,
     signOrder, 
     generateDomainData,
     domain,

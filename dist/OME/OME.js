@@ -1,8 +1,11 @@
-import { __awaiter } from "tslib";
-const OMEAddress = "http://localhost:8989";
-const fetch = require("node-fetch");
-const orderToOMEOrder = (web3, order, sig) => {
-    let omeOrder = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.submitOrder = exports.createMarket = exports.orderToOMEOrder = void 0;
+var tslib_1 = require("tslib");
+var OMEAddress = "http://localhost:8989";
+var fetch = require("node-fetch");
+var orderToOMEOrder = function (web3, order, sig) {
+    var omeOrder = {
         id: "123",
         address: order.user,
         side: order.side ? "Bid" : "Ask",
@@ -13,11 +16,17 @@ const orderToOMEOrder = (web3, order, sig) => {
     };
     return omeOrder;
 };
-const createMarket = (market) => __awaiter(void 0, void 0, void 0, function* () {
-    return fetch(`${OMEAddress}/book`, { method: "POST", body: JSON.stringify({ market: market }), headers: { 'Content-Type': 'application/json' } });
-});
-const submitOrder = (market, order) => __awaiter(void 0, void 0, void 0, function* () {
-    return fetch(`${OMEAddress}/book/${market}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } });
-});
-export { orderToOMEOrder, createMarket, submitOrder };
+exports.orderToOMEOrder = orderToOMEOrder;
+var createMarket = function (market) { return tslib_1.__awaiter(void 0, void 0, void 0, function () {
+    return tslib_1.__generator(this, function (_a) {
+        return [2, fetch(OMEAddress + "/book", { method: "POST", body: JSON.stringify({ market: market }), headers: { 'Content-Type': 'application/json' } })];
+    });
+}); };
+exports.createMarket = createMarket;
+var submitOrder = function (market, order) { return tslib_1.__awaiter(void 0, void 0, void 0, function () {
+    return tslib_1.__generator(this, function (_a) {
+        return [2, fetch(OMEAddress + "/book/" + market + "/order", { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })];
+    });
+}); };
+exports.submitOrder = submitOrder;
 //# sourceMappingURL=OME.js.map

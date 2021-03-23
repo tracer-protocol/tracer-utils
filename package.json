@@ -1,8 +1,9 @@
 {
   "name": "@tracer-protocol/tracer-utils",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Helpful utils",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "node-fetch": "^2.6.1",
     "tslib": "^2.1.0",
