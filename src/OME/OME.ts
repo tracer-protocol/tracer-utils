@@ -5,11 +5,13 @@ const orderToOMEOrder:(web3: any,  order: OrderData, sig: Signature) => SignedOr
     let omeOrder = {
         id: "123",
         address: order.user,
+        market: order.targetTracer,
         side: order.side ? "Bid" : "Ask",
         price: order.price,
         amount: order.amount,
         expiration: order.expiration,
         signed_data: web3.utils.hexToBytes("0x" + sig.sigR.substring(2) + sig.sigS.substring(2) + sig.sigV.toString(16)),
+        nonce: web3.utils.toHex(order.nonce)
     }
     return omeOrder
 }
@@ -20,7 +22,7 @@ const createMarket = async (market: string, omeAddress: string) => {
 }
 
 const submitOrder = async (market: string, order: SignedOrder, omeAddress: string) => {
-    return fetch(`${omeAddress}/book/${market}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
+    return fetch(`${omeAddress}/book/${market}`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
 }
 
 export {
