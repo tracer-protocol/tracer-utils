@@ -1,8 +1,9 @@
 {
-  "name": "@lions-mane/tracer-utils",
-  "version": "0.0.1",
+  "name": "@tracer-protocol/tracer-utils",
+  "version": "0.0.4",
   "description": "Helpful utils",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "node-fetch": "^2.6.1",
     "tslib": "^2.1.0",
@@ -27,7 +28,7 @@
     "b": "tsc",
     "test": "mocha"
   },
-  "repository": "git+https://github.com/lions-mane/tracer-utils.git",
+  "repository": "git+https://github.com/tracer-protocol/tracer-utils.git",
   "author": "dospore",
   "license": "ISC",
   "bugs": {
