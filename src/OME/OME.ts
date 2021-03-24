@@ -21,12 +21,22 @@ const createMarket = async (market: string, omeAddress: string) => {
     return fetch(`${omeAddress}/book`, { method: "POST", body: JSON.stringify({market: market}), headers: { 'Content-Type': 'application/json' } })
 }
 
+const getMarkets = async(omeAddress: string) => {
+    return fetch(`${omeAddress}/book`, { method: "GET", headers: { 'Content-Type': 'application/json' } })
+}
+
+const getOrders = async(market: string, omeAddress: string) => {
+    return fetch(`${omeAddress}/book/${market}`, { method: "GET", headers: { 'Content-Type': 'application/json' } })
+}
+
 const submitOrder = async (market: string, order: SignedOrder, omeAddress: string) => {
-    return fetch(`${omeAddress}/book/${market}`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
+    return fetch(`${omeAddress}/book/${market}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
 }
 
 export {
     orderToOMEOrder,
     createMarket,
-    submitOrder
+    submitOrder,
+    getMarkets,
+    getOrders
 }
