@@ -1,6 +1,7 @@
 const fetch = require("node-fetch")
 import { OrderData, Signature, SignedOrder } from '../Types/types';
 
+//serialise an order for the OME
 const orderToOMEOrder:(web3: any,  order: OrderData, sig: Signature) => SignedOrder = (web3, order, sig) => {
     let omeOrder = {
         id: "123",
@@ -16,8 +17,16 @@ const orderToOMEOrder:(web3: any,  order: OrderData, sig: Signature) => SignedOr
     return omeOrder
 }
 
+/**
+ * Converts a market address from its ETH address form 0xaBc to
+ * its ome form aBc
+ */
+const omefy = (market: string) => {
+    return market.slice(2).toLowerCase()
+}
 
 const createMarket = async (market: string, omeAddress: string) => {
+    // Note: The ome accepts a market of the form 0x here as it is in data, not the path
     return fetch(`${omeAddress}/book`, { method: "POST", body: JSON.stringify({market: market}), headers: { 'Content-Type': 'application/json' } })
 }
 
@@ -26,11 +35,11 @@ const getMarkets = async(omeAddress: string) => {
 }
 
 const getOrders = async(market: string, omeAddress: string) => {
-    return fetch(`${omeAddress}/book/${market}`, { method: "GET", headers: { 'Content-Type': 'application/json' } })
+    return fetch(`${omeAddress}/book/${omefy(market)}`, { method: "GET", headers: { 'Content-Type': 'application/json' } })
 }
 
 const submitOrder = async (market: string, order: SignedOrder, omeAddress: string) => {
-    return fetch(`${omeAddress}/book/${market}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
+    return fetch(`${omeAddress}/book/${omefy(market)}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
 }
 
 export {

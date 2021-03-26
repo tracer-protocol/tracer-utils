@@ -85,7 +85,7 @@ const signOrder:(web3: any, signingAccount: string, data: SigningData) => Promis
  * @param traderAddress address of the deployed trader contract
  * @returns the signed data along with the order
  */
-const signOrders: (web3: any, orders: OrderData[], traderAddress: string) => Promise<Promise<{ order: OrderData, sig: Signature }>[]> = async (web3, orders, traderAddress) => {
+const signOrders: (web3: any, orders: OrderData[], traderAddress: string) => Promise<Promise<{ order: OrderData, sigR: String, sigS: String, sigV: number }>[]> = async (web3, orders, traderAddress) => {
     let _domainData = generateDomainData(traderAddress)
     return await orders.map(async (order) => {
         let type = {
@@ -104,7 +104,9 @@ const signOrders: (web3: any, orders: OrderData[], traderAddress: string) => Pro
 
         return {
             order: order,
-            sig: signedData,
+            sigR: signedData.sigR,
+            sigS: signedData.sigS,
+            sigV: signedData.sigV
         }
     })
 }
