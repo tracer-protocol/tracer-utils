@@ -41,6 +41,7 @@ const getOrders = async(market: string, omeAddress: string) => {
 
 const submitOrder = async (market: string, order: SignedOrder, omeAddress: string) => {
     return fetch(`${omeAddress}/book/${omefy(market)}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
+}
 
 export {
     orderToOMEOrder,
