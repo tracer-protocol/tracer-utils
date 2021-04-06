@@ -1,12 +1,13 @@
 const fetch = require("node-fetch")
-import { OrderData, Signature, SignedOrder } from '../Types/types';
+//import fetch from "node-fetch"
+import { OrderData, SignedOrder } from '../Types/types';
 
 //serialise an order for the OME
-const orderToOMEOrder:(web3: any,  order: OrderData, sig: Signature) => SignedOrder = (web3, order, sig) => {
+const orderToOMEOrder:(web3: any,  order: OrderData, sig: { order: OrderData, sigR: String, sigS: String, sigV: number }) => SignedOrder = (web3, order, sig) => {
     let omeOrder = {
         id: "123",
-        address: order.user,
-        market: order.targetTracer,
+        address: web3.utils.toChecksumAddress(order.user),
+        market: web3.utils.toChecksumAddress(order.targetTracer),
         side: order.side ? "Bid" : "Ask",
         price: order.price,
         amount: order.amount,
@@ -22,7 +23,7 @@ const orderToOMEOrder:(web3: any,  order: OrderData, sig: Signature) => SignedOr
  * its ome form aBc
  */
 const omefy = (market: string) => {
-    return market.slice(2).toLowerCase()
+    return market.slice(2)
 }
 
 const createMarket = async (market: string, omeAddress: string) => {
