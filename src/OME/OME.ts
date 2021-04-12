@@ -3,11 +3,12 @@ const fetch = require("node-fetch")
 import { OrderData, SignedOrder } from '../Types/types';
 
 //serialise an order for the OME
+//todo change to support new OME spec
 const orderToOMEOrder:(web3: any, signedOrder: { order: OrderData, sigR: String, sigS: String, sigV: number }) => SignedOrder = (web3, signedOrder) => {
     let omeOrder = {
         id: "123",
-        address: web3.utils.toChecksumAddress(signedOrder.order.user),
-        market: web3.utils.toChecksumAddress(signedOrder.order.targetTracer),
+        user: web3.utils.toChecksumAddress(signedOrder.order.user),
+        target_tracer: web3.utils.toChecksumAddress(signedOrder.order.targetTracer),
         side: signedOrder.order.side ? "Bid" : "Ask",
         price: signedOrder.order.price,
         amount: signedOrder.order.amount,
