@@ -44,7 +44,7 @@ export type Signature = {
  */
 export type SignedOrder = {
     id: string,
-    address: string,
+    user: string,
     side: string,
     price: number | string,
     amount: number | string,
