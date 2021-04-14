@@ -32,24 +32,29 @@ export type OrderData = {
     nonce: number,
 }
 
+export type SignedOrderData = {
+    order: OrderData,
+    sigR: string,
+    sigS: string,
+    sigV: number
+}
+
 export type Signature = {
     sigR: string
     sigS: string
     sigV: number
 }
 
-/**
- * This data type combines the OrderData and Signature data type. It is used to send orders
- * to the off chain order matching engine.
- */
-export type SignedOrder = {
+export type OMEOrder = {
     id: string,
     user: string,
+    target_tracer: string,
     side: string,
     price: number | string,
     amount: number | string,
     expiration: number | string,
-    signed_data: string
+    signed_data: string,
+    nonce: string
 }
 
 export type SigningData = {

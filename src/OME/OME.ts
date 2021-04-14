@@ -1,27 +1,11 @@
 const fetch = require("node-fetch")
 //import fetch from "node-fetch"
-import { OrderData, SignedOrder } from '../Types/types';
+import { OMEOrder } from '../Types/types';
 
-//serialise an order for the OME
-//todo change to support new OME spec
-const orderToOMEOrder:(web3: any, signedOrder: { order: OrderData, sigR: String, sigS: String, sigV: number }) => SignedOrder = (web3, signedOrder) => {
-    let omeOrder = {
-        id: "123",
-        user: web3.utils.toChecksumAddress(signedOrder.order.user),
-        target_tracer: web3.utils.toChecksumAddress(signedOrder.order.targetTracer),
-        side: signedOrder.order.side ? "Bid" : "Ask",
-        price: signedOrder.order.price,
-        amount: signedOrder.order.amount,
-        expiration: signedOrder.order.expiration,
-        signed_data: web3.utils.hexToBytes("0x" + signedOrder.sigR.substring(2) + signedOrder.sigS.substring(2) + signedOrder.sigV.toString(16)),
-        nonce: web3.utils.toHex(signedOrder.order.nonce)
-    }
-    return omeOrder
-}
 
 /**
  * Converts a market address from its ETH address form 0xaBc to
- * its ome form aBc
+ * its ome form aBc. This is due to the leading 0x causing rust issues on the url path
  */
 const omefy = (market: string) => {
     return market.slice(2)
@@ -40,12 +24,11 @@ const getOrders = async(market: string, omeAddress: string) => {
     return fetch(`${omeAddress}/book/${omefy(market)}`, { method: "GET", headers: { 'Content-Type': 'application/json' } })
 }
 
-const submitOrder = async (market: string, order: SignedOrder, omeAddress: string) => {
+const submitOrder = async (market: string, order: OMEOrder, omeAddress: string) => {
     return fetch(`${omeAddress}/book/${omefy(market)}/order`, { method: "POST", body: JSON.stringify(order), headers: { 'Content-Type': 'application/json' } })
 }
 
 export {
-    orderToOMEOrder,
     createMarket,
     submitOrder,
     getMarkets,
