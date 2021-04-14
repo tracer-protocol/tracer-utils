@@ -1,29 +1,40 @@
+# Description
+Utility package for common functions within the Tracer ecosystem. Useful for clients who wish to interact with the Tracer protocol.
+# Usage
+```
+npm install @tracer-protocol/tracer-utils
+```
 
+To use any of the packages, simply import the function from the package you wish to use, directly from the tracer-utils library.
+```
+import { signOrders } from "@tracer-protocol/tracer-utils`
+await signOrders(...)
+```
+# Packages
+## OME
+This package adds utility functions for interacting with the Tracer [OME](https://github.com/tracer-protocol/tracer-ome).
 
-## Description
-Utils package for common functions within the Tracer ecosystem.
+Supported are the following functions
+- createMarket: create a new market on the OME. Markets are identified by their Ethereum address.
+- getMarkets: returns all markets currently registered with the OME
+- getOrders: returns all orders currently associated with a market
+- submitOrder: submits an EIP712 compliant signed order to the OME.
 
+## Signing
+This package adds utility functionality for signing orders via the EIP712 [specification](https://eips.ethereum.org/EIPS/eip-712)
 
-## Strucure
-When creating a new directory follow the structure of 
+Supported are the following functions
+- signOrder: sign a single instance of an order via a local Ethereum node using the eth_signTypedData RPC call
+- signOrders: sign multiple orders are once.
+
+# Development
+## Contributing
+When creating a new package follow the structure of 
 
 ```
 -- src
     -- NewUtilsSpace
         -- index.ts // export or main 
-        -- Folder1
-        -- Folder2
-        -- types
+        -- source.ts
+        -- extra source files or folders
 ```
-
-## Current Packages
-### OME
-Provides OME connection functionality
-- createMarket: create a market on the OME
-- submitOrder: submits a signed order to the OME
-- orderToOMEOrder: converts a signed order as per the EIP712 setup (generated via the signing package) to the structure that the OME expects. This can be used to then submit orders to the OME.
-
-### Signing
-Provides common EIP712 signing functionality
-- signOrder: allows a node to sign an order using eth_signTypedData
-- signOrders: allows the bulk signing of orders
