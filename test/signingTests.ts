@@ -1,7 +1,5 @@
 import { expect } from 'chai';
 import { generateDomainData } from "../src/Signing"
-// if you used the '@types/mocha' method to install mocha type definitions, uncomment the following line
-// import 'mocha';
 
 describe('generateDomainData', () => {
   it('should set the correct network', () => {
