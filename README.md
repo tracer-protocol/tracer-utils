@@ -27,6 +27,13 @@ Supported are the following functions
 - signOrder: sign a single instance of an order via a local Ethereum node using the eth_signTypedData RPC call
 - signOrders: sign multiple orders are once.
 
+## Serialisation
+This package adds utility functionality for serialising orders between the contracts and the OME
+
+Supported are the following functions
+- orderToOMEOrder: converts an order from the raw signed order type to a type supported by the OME
+- omeOrderToOrder: converts an order sent from the OME into the type to send it to the contracts
+
 # Development
 ## Contributing
 When creating a new package follow the structure of 
