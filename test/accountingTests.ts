@@ -35,12 +35,13 @@ describe('calcTradeExposure', () => {
     expect(exposure).to.equal(10);
     expect(slippage).to.equal(0)
     expect(tradePrice).to.equal(1);
+
   });
   it('order[0].notional <= quote <= order[1].notional', () => {
     const { exposure, slippage, tradePrice } = calcTradeExposure(20, 1, orders)
     expect(exposure).to.equal(19.0909090909);
     // actual paid price === 1.05
-    expect(slippage).to.equal(0.04761904761904767)
+    expect(slippage).to.approximately(0.05, 0.00001)
     expect(tradePrice).to.equal(1.05);
   });
   it('takes all orders', () => {
@@ -55,7 +56,7 @@ describe('calcTradeExposure', () => {
     // trade price at 1.133333333
     const { exposure, slippage, tradePrice } = calcTradeExposure(68, 1, orders)
     expect(exposure).to.equal(68)
-    expect(slippage).to.equal(0.11764705882352944)
+    expect(slippage).to.approximately(0.133333, 0.00001)
     // 10 0's
     expect(tradePrice).to.equal(1.1333333333333333);
   });
@@ -63,7 +64,7 @@ describe('calcTradeExposure', () => {
     // should be same as above
     const { exposure, slippage, tradePrice } = calcTradeExposure(300, 1, orders)
     expect(exposure).to.equal(68)
-    expect(slippage).to.equal(0.11764705882352944)
+    expect(slippage).to.approximately(0.133333, 0.00001)
     // 10 0's
     expect(tradePrice).to.equal(1.1333333333333333);
   });
@@ -71,7 +72,7 @@ describe('calcTradeExposure', () => {
     // should be same as above
     const { exposure, slippage, tradePrice } = calcTradeExposure(34, 2, orders)
     expect(exposure).to.equal(68)
-    expect(slippage).to.equal(0.11764705882352944)
+    expect(slippage).to.approximately(0.133333, 0.00001)
     // 10 0's
     expect(tradePrice).to.equal(1.1333333333333333);
   });

@@ -163,23 +163,23 @@ export const calcTradeExposure: (
         let exposure = 0,
             sumOfWeights = 0,
             totalUnits = 0;
-        let deposit = quote * leverage; // total units of underlying
+        let buyingPower = quote * leverage; // total units of underlying
         for (const order of orders) {
             const amount = order.amount;
             const orderPrice = order.price;
             // remainding units of accounts quote use
-            const r = deposit - amount * orderPrice;
+            const r = buyingPower - amount * orderPrice;
             if (r >= 0) { // if it can eat the whole order
                 totalUnits += orderPrice * amount;
                 sumOfWeights += amount;
                 exposure += amount * orderPrice; // units of the assets
-                deposit -= amount * orderPrice; // subtract the remainder in units of underLying
+                buyingPower -= amount * orderPrice; // subtract the remainder in units of underLying
             } else { // eat a bit of the order nom nom
                 // if we get here the max amount we can is the remainder of deposit
-                if (deposit) {
-                    totalUnits += deposit * orderPrice;
-                    sumOfWeights += deposit;
-                    exposure += deposit / orderPrice;
+                if (buyingPower) {
+                    totalUnits += buyingPower * orderPrice;
+                    sumOfWeights += buyingPower;
+                    exposure += buyingPower / orderPrice;
                 }
                 break;
             }
@@ -190,7 +190,7 @@ export const calcTradeExposure: (
         const tradePrice = totalUnits ? totalUnits / sumOfWeights: expectedPrice;
         return {
             exposure: parseFloat(exposure.toFixed(10)),
-            slippage: 1 - expectedPrice/tradePrice,
+            slippage: Math.abs((expectedPrice - tradePrice) / expectedPrice),
             tradePrice: tradePrice
         };
     }
