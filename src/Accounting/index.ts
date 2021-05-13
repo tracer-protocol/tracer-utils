@@ -8,7 +8,7 @@ const LIQUIDATION_GAS_COST = 25; // When gas price is 250 gwei and eth price is 
  * Calculates the leverage multiplier the user currently has based on their position and a given price
  */
 export const calcLeverage: (quote: number, base: number, price: number) => number = (quote, base, price) => {
-    return calcNotionalValue(base, price) / totalMargin(base, quote, price);
+    return calcNotionalValue(base, price) / calcTotalMargin(quote, base, price);
 };
 
 
@@ -58,16 +58,12 @@ export const calcProfitableLiquidationPrice: (
     price: number,
     maxLeverage: number,
 ) => number = (quote, base, price, maxLeverage) => {
-    const margin = totalMargin(base, quote, price);
     const borrowed = calcBorrowed(quote, base, price);
-    if (borrowed > 0 || margin < 0) {
-        return quote > 0 // case 1
-            ? (maxLeverage * (base - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST))) /
-                  (quote - maxLeverage * quote)
-            : 0 + quote < 0 // case 2
-            ? -1 *
-              ((base * (maxLeverage - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST) * maxLeverage)) /
-                  (maxLeverage * quote + quote))
+    if (borrowed > 0 || base < 0) {
+        return base > 0 // case 1
+            ? (maxLeverage * (quote - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST))) / (base - maxLeverage * base)
+            : 0 + base < 0 // case 2
+            ? (-1 * (quote * maxLeverage - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST) * maxLeverage)) / (maxLeverage * base + base)
             : 0;
     } else {
         return 0;
@@ -83,7 +79,7 @@ export const calcProfitableLiquidationPrice: (
  * @returns the amount borrowed by an account or 0 if the borrowed amount is negative
  */
 export const calcBorrowed: (quote: number, base: number, price: number) => number = (quote, base, price) =>
-    Math.max(0, calcNotionalValue(base, price) - totalMargin(base, quote, price));
+    Math.max(0, calcNotionalValue(base, price) - calcTotalMargin(quote, base, price));
 
 /**
  * Calculates the withdrawable amount of quote asset. This will put the account just above
@@ -101,7 +97,7 @@ export const calcWithdrawable: (quote: number, base: number, price: number, maxL
     price,
     maxLeverage,
 ) => {
-    return totalMargin(base, quote, price) - (base !== 0 ? LIQUIDATION_GAS_COST * RYAN_6 + calcNotionalValue(base, price) / maxLeverage : 0);
+    return calcTotalMargin(quote, base, price) - (base !== 0 ? LIQUIDATION_GAS_COST * RYAN_6 + calcNotionalValue(base, price) / maxLeverage : 0);
 };
 
 /**
@@ -128,8 +124,8 @@ export const calcMinimumMargin: (quote: number, base: number, price: number, max
     price,
     maxLeverage,
 ) => {
-    const margin = totalMargin(base, quote, price);
-    if (margin > 0 || base < 0) {
+    const borrowed = calcBorrowed(quote, base, price);
+    if (borrowed > 0 || base < 0) {
         return LIQUIDATION_GAS_COST * RYAN_6 + calcNotionalValue(base, price) / maxLeverage;
     } else {
         return 0;
@@ -144,7 +140,7 @@ export const calcMinimumMargin: (quote: number, base: number, price: number, max
  * @param price The given price of the asset 
  * @returns the total margin of an account
  */
-export const totalMargin: (base: number, quote: number, price: number) => number = (base, quote, price) =>
+export const calcTotalMargin: (quote: number, base: number, price: number) => number = (quote, base, price) =>
     quote + base * price;
 
 /**

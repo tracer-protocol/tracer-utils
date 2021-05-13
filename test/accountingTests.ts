@@ -1,5 +1,25 @@
 import { expect } from 'chai';
-import { calcTradeExposure } from "../src/Accounting"
+import { 
+  calcTradeExposure,
+  calcBorrowed,
+  calcTotalMargin,
+  calcMinimumMargin,
+  calcWithdrawable,
+  calcNotionalValue,
+  calcLeverage,
+  calcLiquidationPrice,
+  calcProfitableLiquidationPrice,
+} from "../src/Accounting"
+
+// Deposit 200 at $100, short 10 units
+const position1 = {
+  quote: 1200, base: -10, price: 100, maxLeverage: 50
+}
+
+// 25 leverage
+const position2 = {
+  quote: -9600, base: 100, price: 100, maxLeverage: 50
+}
 
 const orders = [
     {
@@ -77,3 +97,59 @@ describe('calcTradeExposure', () => {
     expect(tradePrice).to.equal(1.1333333333333333);
   });
 });
+
+describe("Testing margin", () => {
+  it('Basic Positions', () => {
+    expect(calcTotalMargin(position1.quote, position1.base, position1.price), 'Position 1').to.equal(200)
+    expect(calcTotalMargin(position2.quote, position2.base, position2.price), 'Position 2').to.equal(400)
+  })
+})
+
+describe("Testing calcNotional", () => {
+  it('Basic Position', () => {
+    expect(calcNotionalValue(position1.base, position1.price), "Position 1").to.equal(1000)
+    expect(calcNotionalValue(position2.base, position2.price), 'Position 2').to.equal(10000)
+  })
+})
+
+describe("Testing Minimum margin", () => {
+  it('Basic Positions', () => {
+    expect(calcMinimumMargin(position1.quote, position1.base, position1.price, position1.maxLeverage), 'Position 1').to.equal(170)
+    expect(calcMinimumMargin(position2.quote, position2.base, position2.price, position2.maxLeverage), 'Position 2').to.equal(350)
+  })
+})
+
+describe("Testing calcBorrowed", () => {
+  it('Basic Positions', () => {
+    expect(calcBorrowed(position1.quote, position1.base, position1.price), 'Position 1').to.equal(800)
+    expect(calcBorrowed(position2.quote, position2.base, position2.price), 'Position 2').to.equal(9600)
+  })
+})
+
+describe("Testing calcLeverage", () => {
+  it('Basic Positions', () => {
+    expect(calcLeverage(position1.quote, position1.base, position1.price), 'Position 1').to.equal(5)
+    expect(calcLeverage(position2.quote, position2.base, position2.price), 'Position 2').to.equal(25)
+  })
+})
+
+describe("Testing liquidationPrice", () => {
+  it('Basic Positions', () => {
+    expect(calcLiquidationPrice(position1.quote, position1.base, position1.price, position1.maxLeverage), "Position 1").to.approximately(102.941, 0.001)
+    expect(calcLiquidationPrice(position2.quote, position2.base, position2.price, position2.maxLeverage), 'Position 2').to.approximately(99.490, 0.001)
+  })
+})
+
+describe("Testing profitableForLiquidationPrice", () => {
+  it('Basic Positions', () => {
+    expect(calcProfitableLiquidationPrice(position1.quote, position1.base, position1.price, position1.maxLeverage), "Position 1").to.approximately(105.392, 0.001)
+    expect(calcProfitableLiquidationPrice(position2.quote, position2.base, position2.price, position2.maxLeverage), 'Position 2').to.approximately(99.235, 0.001)
+  })
+})
+
+describe('Testing Withdrawable', () => {
+  it('Basic Positions', () => {
+    expect(calcWithdrawable(position1.quote, position1.base, position1.price, position1.maxLeverage), 'Position 1').to.equal(30)
+    expect(calcWithdrawable(position2.quote, position2.base, position2.price, position2.maxLeverage), 'Position 2').to.equal(50)
+  })
+})
