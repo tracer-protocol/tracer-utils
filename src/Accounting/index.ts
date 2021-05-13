@@ -6,8 +6,11 @@ const LIQUIDATION_GAS_COST = 25; // When gas price is 250 gwei and eth price is 
 
 /**
  * Calculates the leverage multiplier the user currently has based on their position and a given price
+ * @returns the leverage of the user at a given position or -1 if the position is invalid this represents infinite leverage
  */
 export const calcLeverage: (quote: number, base: number, price: number) => number = (quote, base, price) => {
+    const margin = calcTotalMargin(quote, base, price);
+    if (margin <= 0) return -1
     return calcNotionalValue(base, price) / calcTotalMargin(quote, base, price);
 };
 
