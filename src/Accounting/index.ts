@@ -11,7 +11,7 @@ const LIQUIDATION_GAS_COST = 25; // When gas price is 250 gwei and eth price is 
 export const calcLeverage: (quote: number, base: number, price: number) => number = (quote, base, price) => {
     const margin = calcTotalMargin(quote, base, price);
     if (margin <= 0) return -1
-    return calcNotionalValue(base, price) / calcTotalMargin(quote, base, price);
+    return calcNotionalValue(base, price) / margin
 };
 
 
@@ -33,15 +33,17 @@ export const calcLiquidationPrice: (quote: number, base: number, price: number, 
     maxLeverage,
 ) => {
     const borrowed = calcBorrowed(quote, base, price);
-    if (borrowed > 0 || base < 0) {
-        return base > 0 // case 1
-            ? (maxLeverage * (quote - RYAN_6 * LIQUIDATION_GAS_COST)) / (base - maxLeverage * base)
-            : 0 + base < 0 // case 2
-            ? (-1 * (quote * maxLeverage - RYAN_6 * LIQUIDATION_GAS_COST * maxLeverage)) / (maxLeverage * base + base)
-            : 0;
-    } else {
-        return 0;
-    }
+    if (borrowed > 0 || base < 0) { // if the user has a position
+        if (base > 0) { // if the user is long
+            return (maxLeverage * (quote - RYAN_6 * LIQUIDATION_GAS_COST)) / (base - maxLeverage * base)
+        } else if (base < 0) { // if the user is short
+            return (
+                -1 * (quote * maxLeverage - RYAN_6 * LIQUIDATION_GAS_COST * maxLeverage)) / (maxLeverage * base + base
+            )
+        } // impossible case of base === 0 because calcBorrowed will return 0 if base is 0
+    } 
+    // all else
+    return 0;
 };
 
 /**
@@ -62,15 +64,17 @@ export const calcProfitableLiquidationPrice: (
     maxLeverage: number,
 ) => number = (quote, base, price, maxLeverage) => {
     const borrowed = calcBorrowed(quote, base, price);
-    if (borrowed > 0 || base < 0) {
-        return base > 0 // case 1
-            ? (maxLeverage * (quote - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST))) / (base - maxLeverage * base)
-            : 0 + base < 0 // case 2
-            ? (-1 * (quote * maxLeverage - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST) * maxLeverage)) / (maxLeverage * base + base)
-            : 0;
-    } else {
-        return 0;
-    }
+    if (borrowed > 0 || base < 0) { // if the user has a position
+        if (base > 0) { // if the user is long
+            return (maxLeverage * (quote - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST))) / (base - maxLeverage * base)
+        } else if (base < 0) { // if the user is short
+            return (
+                -1 * (quote * maxLeverage - (RYAN_6 * LIQUIDATION_GAS_COST - LIQUIDATION_GAS_COST) * maxLeverage)) / (maxLeverage * base + base
+            )
+        } // impossible case of base === 0 because calcBorrowed will return 0 if base is 0
+    } 
+    // all else
+    return 0;
 };
 
 /**
