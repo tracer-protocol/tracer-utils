@@ -148,7 +148,7 @@ export const calcMinimumMargin: (quote: number, base: number, price: number, max
  * @returns the total margin of an account
  */
 export const calcTotalMargin: (quote: number, base: number, price: number) => number = (quote, base, price) =>
-    quote + base * price;
+    (quote + base * price) ?? 0; // return 0 if something goes wrong
 
 /**
  * Calculates a theoretical market exposure if it took all the 'best' orders it could
