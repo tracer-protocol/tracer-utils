@@ -1,6 +1,7 @@
+import BigNumber from "bignumber.js";
 
 
 export interface FlatOrder {
-    price: number,
-    amount: number,
+    price: BigNumber,
+    amount: BigNumber,
 }
