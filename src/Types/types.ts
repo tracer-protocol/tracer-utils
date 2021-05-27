@@ -48,7 +48,7 @@ export type OMEOrder = {
     id: string,
     user: string,
     target_tracer: string,
-    side: number,
+    side: string,
     price: number | string,
     amount: number | string,
     expiration: number | string,

@@ -8,10 +8,9 @@ import { OMEOrder, OrderData, SignedOrderData } from '../Types/types';
  */
 const orderToOMEOrder:(web3: any, signedOrder: SignedOrderData) => OMEOrder = (web3, signedOrder) => {
     return {
-        id: "123",
         user: web3.utils.toChecksumAddress(signedOrder.order.maker),
         target_tracer: web3.utils.toChecksumAddress(signedOrder.order.market),
-        side: signedOrder.order.side,
+        side: signedOrder.order.side == 0 ? "Bid" : "Ask",
         price: signedOrder.order.price,
         amount: signedOrder.order.amount,
         expiration: signedOrder.order.expires,
@@ -34,7 +33,7 @@ const omeOrderToOrder:(web3: any, omeOrder: OMEOrder) => SignedOrderData = (web3
         order: {
             amount: omeOrder.amount.toString(),
             price: omeOrder.price.toString(),
-            side: omeOrder.side,
+            side: omeOrder.side == "Bid" ? 0 : 1,
             maker: web3.utils.toChecksumAddress(omeOrder.user),
             expires: omeOrder.expiration,
             market: web3.utils.toChecksumAddress(omeOrder.target_tracer),
