@@ -5,31 +5,30 @@ export type DomainDataType = [
     { name: "verifyingContract", type: "address" }
 ]
 
-export type LimitOrderDataType = [
+export type OrderDataType = [
+    { name: "maker", type: "address" },
+    { name: "market", type: "address" },
+    { name: "price", type: "uint256" },
     { name: "amount", type: "uint256" },
-    { name: "price", type: "int256" },
-    { name: "side", type: "bool" },
-    { name: "user", type: "address" },
-    { name: "expiration", type: "uint256" },
-    { name: "targetTracer", type: "address" },
-    { name: "nonce", type: "uint256" }
+    { name: "side", type: "uint256" },
+    { name: "expires", type: "uint256" },
+    { name: "created", type: "uint256" },
 ]
 
 export interface DomainData {
     name: string;
     version: string;
     chainId: number;
-    verifyingContract: string;
 }
 
 export type OrderData = {
-    amount: number | string
-    price: number | string // price the order is being taken at 
-    side: boolean // true for long false for short
-    user: string, // address of the user
-    expiration: number | string, // expiration in seconds 
-    targetTracer: string, // address of tracer contract
-    nonce: number,
+    maker: string, // address of the user
+    market: string, // address of tracer contract
+    price: number | string, // price the order is being taken at 
+    amount: number | string,
+    side: number // true for long false for short
+    expires: number | string, // expiration in seconds 
+    created: number | string,
 }
 
 export type SignedOrderData = {
@@ -49,22 +48,21 @@ export type OMEOrder = {
     id: string,
     user: string,
     target_tracer: string,
-    side: string,
+    side: number,
     price: number | string,
     amount: number | string,
     expiration: number | string,
     signed_data: string,
-    nonce: string
 }
 
 export type SigningData = {
     domain: DomainData,
-    primaryType: "LimitOrder",
+    primaryType: "Order",
     message: OrderData,
     types: DataType,
 }
 
 export type DataType = {
     EIP712Domain: DomainDataType,
-    LimitOrder: LimitOrderDataType
+    Order: OrderDataType
 }

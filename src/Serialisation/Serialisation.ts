@@ -1,4 +1,4 @@
-import { OMEOrder, SignedOrderData } from '../Types/types';
+import { OMEOrder, OrderData, SignedOrderData } from '../Types/types';
 
 /**
  * Serialises an order from its raw signed format to a format supported by the OME
@@ -9,14 +9,13 @@ import { OMEOrder, SignedOrderData } from '../Types/types';
 const orderToOMEOrder:(web3: any, signedOrder: SignedOrderData) => OMEOrder = (web3, signedOrder) => {
     return {
         id: "123",
-        user: web3.utils.toChecksumAddress(signedOrder.order.user),
-        target_tracer: web3.utils.toChecksumAddress(signedOrder.order.targetTracer),
-        side: signedOrder.order.side ? "Bid" : "Ask",
+        user: web3.utils.toChecksumAddress(signedOrder.order.maker),
+        target_tracer: web3.utils.toChecksumAddress(signedOrder.order.market),
+        side: signedOrder.order.side,
         price: signedOrder.order.price,
         amount: signedOrder.order.amount,
-        expiration: signedOrder.order.expiration,
+        expiration: signedOrder.order.expires,
         signed_data: web3.utils.hexToBytes("0x" + signedOrder.sigR.substring(2) + signedOrder.sigS.substring(2) + signedOrder.sigV.toString(16)),
-        nonce: web3.utils.toHex(signedOrder.order.nonce)
     } as OMEOrder
 }
 
@@ -35,12 +34,12 @@ const omeOrderToOrder:(web3: any, omeOrder: OMEOrder) => SignedOrderData = (web3
         order: {
             amount: omeOrder.amount.toString(),
             price: omeOrder.price.toString(),
-            side: omeOrder.side === "Bid",
-            user: web3.utils.toChecksumAddress(omeOrder.user),
-            expiration: omeOrder.expiration,
-            targetTracer: web3.utils.toChecksumAddress(omeOrder.target_tracer),
-            nonce: parseInt(omeOrder.nonce, 16)
-        },
+            side: omeOrder.side,
+            maker: web3.utils.toChecksumAddress(omeOrder.user),
+            expires: omeOrder.expiration,
+            market: web3.utils.toChecksumAddress(omeOrder.target_tracer),
+            created: 0 //todo
+        } as OrderData,
         //Parse sigR, sigS, sigV as per EIP712
         sigR: "0x" + sigAsByteString.substring(0, 64),
         sigS: "0x" + sigAsByteString.substring(64, 128),

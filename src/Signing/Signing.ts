@@ -1,5 +1,5 @@
 import { 
-    DomainDataType, LimitOrderDataType, DomainData,
+    DomainDataType, OrderDataType, DomainData,
     OrderData, SigningData, Signature
 } from '../Types/types';
 
@@ -11,14 +11,14 @@ const domain:DomainDataType = [
     { name: "verifyingContract", type: "address" },
 ]
 
-const limitOrder:LimitOrderDataType = [
+const orderType:OrderDataType = [
+    { name: "maker", type: "address" },
+    { name: "market", type: "address" },
+    { name: "price", type: "uint256" },
     { name: "amount", type: "uint256" },
-    { name: "price", type: "int256" },
-    { name: "side", type: "bool" },
-    { name: "user", type: "address" },
-    { name: "expiration", type: "uint256" },
-    { name: "targetTracer", type: "address" },
-    { name: "nonce", type: "uint256" },
+    { name: "side", type: "uint256" },
+    { name: "expires", type: "uint256" },
+    { name: "created", type: "uint256" },
 ]
 
 /**
@@ -64,6 +64,7 @@ const signOrder:(web3: any, signingAccount: string, data: SigningData) => Promis
                 if (err) {
                     reject(err)
                 }
+                console.log(result)
                 let parsedSig = result.result.substring(2)
                 const r: string = "0x" + parsedSig.substring(0, 64)
                 const s: string = "0x" + parsedSig.substring(64, 128)
@@ -90,17 +91,18 @@ const signOrders: (web3: any, orders: OrderData[], traderAddress: string) => Pro
     return await orders.map(async (order) => {
         let type = {
             EIP712Domain: domain,
-            LimitOrder: limitOrder,
+            Order: orderType,
         }
 
         let dataToSign:SigningData = {
             domain: _domainData,
-            primaryType: "LimitOrder",
+            primaryType: "Order",
             message: order,
             types: type,
         }
 
-        let signedData: Signature = await signOrder(web3, order.user, dataToSign)
+        console.log(order)
+        let signedData: Signature = await signOrder(web3, order.maker, dataToSign)
 
         return {
             order: order,
@@ -116,5 +118,5 @@ export {
     signOrder, 
     generateDomainData,
     domain,
-    limitOrder
+    orderType
 }
