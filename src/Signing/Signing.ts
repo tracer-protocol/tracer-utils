@@ -56,23 +56,27 @@ const signOrder:(web3: any, signingAccount: string, data: SigningData) => Promis
         }
         return web3.currentProvider?.send(
             {
-                method: "eth_signTypedData",
-                params: [signer, data],
+                method: "eth_signTypedData_v3",
+                params: [signer, JSON.stringify(data)],
                 from: signer,
             },
             async (err: any, result: any) => {
-                if (err) {
-                    reject(err)
+                if (err || result.error) {
+                    reject(err ?? result.error)
                 }
-                let parsedSig = result.result.substring(2)
-                const r: string = "0x" + parsedSig.substring(0, 64)
-                const s: string = "0x" + parsedSig.substring(64, 128)
-                const v: number = parseInt(parsedSig.substring(128, 130), 16) //130 hex = 65bytes
-                resolve({
-                    sigR: r,
-                    sigS: s,
-                    sigV: v
-                })
+                try {
+                    let parsedSig = result.result.substring(2)
+                    const r: string = "0x" + parsedSig.substring(0, 64)
+                    const s: string = "0x" + parsedSig.substring(64, 128)
+                    const v: number = parseInt(parsedSig.substring(128, 130), 16) //130 hex = 65bytes
+                    resolve({
+                        sigR: r,
+                        sigS: s,
+                        sigV: v
+                    })
+                } catch (error) {
+                    reject(error);
+                }
             }
         )
     })
