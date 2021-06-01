@@ -1,6 +1,10 @@
 {
   "name": "@tracer-protocol/tracer-utils",
+<<<<<<< HEAD
   "version": "0.2.2",
+=======
+  "version": "0.2.1",
+>>>>>>> 2ef36de5f9c99880bb091b27870a3a1cbaf1da58
   "description": "Helpful utils",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
