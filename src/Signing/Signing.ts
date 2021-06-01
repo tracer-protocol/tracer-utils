@@ -69,7 +69,7 @@ const signOrder: (
                 params: [
                     signer,
                     // sign typed data v3 expects stringified data
-                    signMethod === "eth_signTypedData_v3"
+                    signMethod === "eth_signTypedData_v3" || signMethod === "eth_signTypedData_v4"
                         ? JSON.stringify(data)
                         : data,
                 ],
