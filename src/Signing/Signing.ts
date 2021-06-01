@@ -169,9 +169,21 @@ const signOrdersV3: (
     return _signOrders(web3, orders, traderAddress, "eth_signTypedData_v3", chainId);
 };
 
+const signOrdersV4: (
+    web3: any,
+    orders: OrderData[],
+    traderAddress: string,
+    chainId?: number
+) => Promise<
+    Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
+> = async (web3, orders, traderAddress, chainId) => {
+    return _signOrders(web3, orders, traderAddress, "eth_signTypedData_v4", chainId);
+};
+
 export {
     signOrders,
     signOrdersV3,
+    signOrdersV4,
     signOrder,
     generateDomainData,
     domain,
