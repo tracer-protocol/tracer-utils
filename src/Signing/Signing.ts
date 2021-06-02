@@ -69,7 +69,7 @@ const signOrder: (
                 params: [
                     signer,
                     // sign typed data v3 expects stringified data
-                    signMethod === "eth_signTypedData_v3"
+                    signMethod === "eth_signTypedData_v3" || signMethod === "eth_signTypedData_v4"
                         ? JSON.stringify(data)
                         : data,
                 ],
@@ -112,11 +112,12 @@ const _signOrders: (
     web3: any,
     orders: OrderData[],
     traderAddress: string,
-    signMethod: string
+    signMethod: string,
+    chainId?: number
 ) => Promise<
     Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
-> = async (web3, orders, traderAddress, signMethod) => {
-    let _domainData = generateDomainData(traderAddress);
+> = async (web3, orders, traderAddress, signMethod, chainId) => {
+    let _domainData = generateDomainData(traderAddress, chainId);
     return await orders.map(async (order) => {
         let type = {
             EIP712Domain: domain,
@@ -149,26 +150,40 @@ const _signOrders: (
 const signOrders: (
     web3: any,
     orders: OrderData[],
-    traderAddress: string
+    traderAddress: string,
+    chainId?: number
 ) => Promise<
     Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
-> = async (web3, orders, traderAddress) => {
-    return _signOrders(web3, orders, traderAddress, "eth_signTypedData");
+> = async (web3, orders, traderAddress, chainId) => {
+    return _signOrders(web3, orders, traderAddress, "eth_signTypedData", chainId);
 };
 
 const signOrdersV3: (
     web3: any,
     orders: OrderData[],
-    traderAddress: string
+    traderAddress: string,
+    chainId?: number
 ) => Promise<
     Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
-> = async (web3, orders, traderAddress) => {
-    return _signOrders(web3, orders, traderAddress, "eth_signTypedData_v3");
+> = async (web3, orders, traderAddress, chainId) => {
+    return _signOrders(web3, orders, traderAddress, "eth_signTypedData_v3", chainId);
+};
+
+const signOrdersV4: (
+    web3: any,
+    orders: OrderData[],
+    traderAddress: string,
+    chainId?: number
+) => Promise<
+    Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
+> = async (web3, orders, traderAddress, chainId) => {
+    return _signOrders(web3, orders, traderAddress, "eth_signTypedData_v4", chainId);
 };
 
 export {
     signOrders,
     signOrdersV3,
+    signOrdersV4,
     signOrder,
     generateDomainData,
     domain,
