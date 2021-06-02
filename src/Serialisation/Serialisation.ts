@@ -14,6 +14,7 @@ const orderToOMEOrder:(web3: any, signedOrder: SignedOrderData) => OMEOrder = (w
         price: signedOrder.order.price,
         amount: signedOrder.order.amount,
         expiration: signedOrder.order.expires,
+        created: signedOrder.order.created,
         signed_data: web3.utils.hexToBytes("0x" + signedOrder.sigR.substring(2) + signedOrder.sigS.substring(2) + signedOrder.sigV.toString(16)),
     } as OMEOrder
 }
@@ -37,7 +38,7 @@ const omeOrderToOrder:(web3: any, omeOrder: OMEOrder) => SignedOrderData = (web3
             maker: web3.utils.toChecksumAddress(omeOrder.user),
             expires: omeOrder.expiration,
             market: web3.utils.toChecksumAddress(omeOrder.target_tracer),
-            created: 0 //todo
+            created: omeOrder.created
         } as OrderData,
         //Parse sigR, sigS, sigV as per EIP712
         sigR: "0x" + sigAsByteString.substring(0, 64),
