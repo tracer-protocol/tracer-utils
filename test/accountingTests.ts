@@ -45,7 +45,7 @@ const invalid2 = {
 const orders = [
     {
         amount: new BigNumber(10),
-        price: new BigNumber(1),
+        price: new BigNumber(1)
     }, 
     {
         amount: new BigNumber(20),
