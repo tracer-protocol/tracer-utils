@@ -208,3 +208,42 @@ export const calcTradeExposure: (
         tradePrice: new BigNumber(0)
     };
 };
+
+/**
+ * Given a users base (position) and price, calculate the unrealisedPnL
+ * by determining their weighted avg buy in price that got them to that position
+ * @requires previousOrders to be ordered in descending order of timestamp
+ * @requires previousOrders to be only orders relating to the current position
+ *  ie. if the user is long its only long orders, if the user is short only short orders
+ * @requires amount/price of orders to be in standard units
+ * @param base 
+ * @param price 
+ * @param previousOrders 
+ * @returns 
+ */
+export const calcUnrealised: (
+    base: BigNumber, 
+    price: BigNumber, 
+    previousOrders: FlatOrder[]
+) => BigNumber = (base, price, previousOrders) => {
+    /** Calculate the weighted average trade price */
+    if (base.eq(0)) return new BigNumber(0);
+    let 
+        remainingBase = new BigNumber(base.abs()),
+        sumOfAmounts = new BigNumber(0),
+        sumOfWeights = new BigNumber(0);
+    for (let order of previousOrders) {
+        let r = remainingBase.minus(order.amount);
+        if (r.gt(0)) {
+            sumOfAmounts = sumOfAmounts.plus(order.amount.times(order.price));
+            sumOfWeights = sumOfWeights.plus(order.amount);
+            remainingBase = remainingBase.minus(order.amount);
+        } else { // r is less than or equal to 0
+            sumOfAmounts = sumOfAmounts.plus(remainingBase.times(order.price));
+            sumOfWeights = sumOfWeights.plus(remainingBase);
+            break;
+        }
+    }
+    let avgPrice = sumOfAmounts.div(sumOfWeights);
+    return (base.times(price)).minus(base.times(avgPrice));
+}

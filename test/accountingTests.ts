@@ -13,6 +13,7 @@ import {
   calcWithdrawable,
   calcNotionalValue,
   calcLeverage,
+  calcUnrealised,
   // calcLiquidationPrice,
   // calcProfitableLiquidationPrice,
 } from "../src/Accounting"
@@ -55,6 +56,22 @@ const orders = [
         price: new BigNumber(1.2)
     }
 ]
+
+const pnlOrders  = [
+    {
+        amount: new BigNumber(10),
+        price: new BigNumber(100)
+    }, 
+    {
+        amount: new BigNumber(10),
+        price: new BigNumber(110)
+    }, 
+    {
+        amount: new BigNumber(20),
+        price: new BigNumber(120)
+    }
+]
+
 
 describe('calcTradeExposure', () => {
   it('no orders', () => {
@@ -206,5 +223,37 @@ describe('Testing Withdrawable', () => {
     // they cannot withdraw anything
     expect(calcWithdrawable(invalid1.quote, invalid1.base, invalid1.price, invalid1.maxLeverage), 'Invalid 1').to.be.bignumber.equal(-170)
     expect(calcWithdrawable(invalid2.quote, invalid2.base, invalid2.price, invalid2.maxLeverage), 'Invalid 2').to.be.bignumber.equal(-140)
+  })
+})
+
+describe('Testing CalcUnrealised', () => {
+  it('Basic Positions', () => {
+    let long = new BigNumber(10);
+    let short = long.negated()
+
+    expect(calcUnrealised(new BigNumber(0), position1.price, pnlOrders), 'Short 10 units').to.be.bignumber.equal(0)
+    // avgPrice should be 100
+    expect(calcUnrealised(short, position1.price, pnlOrders), 'Short 10 units').to.be.bignumber.equal(0)
+    expect(calcUnrealised(short, new BigNumber(110), pnlOrders), 'Short 10 units, Price 110').to.be.bignumber.equal(-100)
+    expect(calcUnrealised(short, new BigNumber(90), pnlOrders), 'Short 10 units, Price 90').to.be.bignumber.equal(100)
+    expect(calcUnrealised(long, position1.price, pnlOrders), 'Long 10 units').to.be.bignumber.equal(0)
+    expect(calcUnrealised(long, new BigNumber(110), pnlOrders), 'Long 10 units, Price 110').to.be.bignumber.equal(100)
+    expect(calcUnrealised(long, new BigNumber(90), pnlOrders), 'Long 10 units, Price 90').to.be.bignumber.equal(-100)
+
+    // avg price should be 105
+    expect(calcUnrealised(short.times(2), position1.price, pnlOrders), 'Short 20 units').to.be.bignumber.equal(100)
+    expect(calcUnrealised(short.times(2), new BigNumber(110), pnlOrders), 'Short 20 units, Price 110').to.be.bignumber.equal(-100)
+    expect(calcUnrealised(short.times(2), new BigNumber(90), pnlOrders), 'Short 20 units, Price 90').to.be.bignumber.equal(300)
+    expect(calcUnrealised(long.times(2), position1.price, pnlOrders), 'Long 20 units').to.be.bignumber.equal(-100)
+    expect(calcUnrealised(long.times(2), new BigNumber(110), pnlOrders), 'Long 20 units, Price 110').to.be.bignumber.equal(100)
+    expect(calcUnrealised(long.times(2), new BigNumber(90), pnlOrders), 'Long 20 units, Price 90').to.be.bignumber.equal(-300)
+
+    // avg price should be 110
+    expect(calcUnrealised(short.times(3), position1.price, pnlOrders), 'Short 30 units').to.be.bignumber.equal(300)
+    expect(calcUnrealised(short.times(3), new BigNumber(110), pnlOrders), 'Short 30 units, Price 110').to.be.bignumber.equal(0)
+    expect(calcUnrealised(short.times(3), new BigNumber(90), pnlOrders), 'Short 30 units, Price 90').to.be.bignumber.equal(600)
+    expect(calcUnrealised(long.times(3), position1.price, pnlOrders), 'Long 30 units').to.be.bignumber.equal(-300)
+    expect(calcUnrealised(long.times(3), new BigNumber(110), pnlOrders), 'Long 30 units, Price 110').to.be.bignumber.equal(0)
+    expect(calcUnrealised(long.times(3), new BigNumber(90), pnlOrders), 'Long 30 units, Price 90').to.be.bignumber.equal(-600)
   })
 })
