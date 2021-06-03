@@ -21,11 +21,13 @@ Supported are the following functions
 - submitOrder: submits an EIP712 compliant signed order to the OME.
 
 ## Signing
-This package adds utility functionality for signing orders via the EIP712 [specification](https://eips.ethereum.org/EIPS/eip-712)
+This package adds utility functionality for signing orders via the EIP712 [specification](https://eips.ethereum.org/EIPS/eip-712). The contracts currently utilise V4 of the EIP712 spec. Both `eth_signTypedData` and `eth_signTypedData_v4` calls are supported due to how some wallet implementations handle this EIP.
 
 Supported are the following functions
-- signOrder: sign a single instance of an order via a local Ethereum node using the eth_signTypedData RPC call
-- signOrders: sign multiple orders are once.
+- signOrders: sign multiple orders via a local Ethereum node using the eth_signTypedData RPC call
+- signOrdersV4: sign multiple orders via a local Ethereum node using the eth_signTypedData_v4 RPC call
+- verifySignature: verifies a provided order was signed by a specific signer.
+- generateDomainData: generates EIP712 compliant domain data for a given trader address on a given network.
 
 ## Serialisation
 This package adds utility functionality for serialising orders between the contracts and the OME

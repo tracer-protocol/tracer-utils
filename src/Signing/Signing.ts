@@ -168,23 +168,6 @@ const signOrders: (
     );
 };
 
-const signOrdersV3: (
-    web3: any,
-    orders: OrderData[],
-    traderAddress: string,
-    chainId?: number
-) => Promise<
-    Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
-> = async (web3, orders, traderAddress, chainId) => {
-    return _signOrders(
-        web3,
-        orders,
-        traderAddress,
-        "eth_signTypedData_v3",
-        chainId
-    );
-};
-
 const signOrdersV4: (
     web3: any,
     orders: OrderData[],
@@ -202,7 +185,7 @@ const signOrdersV4: (
     );
 };
 
-const verifySignatures: (
+const verifySignature: (
     order: OrderData,
     traderAddress: string,
     sig: string,
@@ -239,11 +222,10 @@ const verifySignatures: (
 
 export {
     signOrders,
-    signOrdersV3,
     signOrdersV4,
     signOrder,
     generateDomainData,
     domain,
     orderType,
-    verifySignatures
+    verifySignature
 };
