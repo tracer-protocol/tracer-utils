@@ -45,7 +45,7 @@ const invalid2 = {
 const orders = [
     {
         amount: new BigNumber(10),
-        price: new BigNumber(1)
+        price: new BigNumber(1),
     }, 
     {
         amount: new BigNumber(20),
@@ -57,18 +57,48 @@ const orders = [
     }
 ]
 
+const noShorts = [
+    {
+        amount: new BigNumber(10),
+        price: new BigNumber(100),
+        side: false
+    }, 
+    {
+        amount: new BigNumber(10),
+        price: new BigNumber(110),
+        side: false
+    }, 
+]
 const pnlOrders  = [
     {
         amount: new BigNumber(10),
-        price: new BigNumber(100)
+        price: new BigNumber(100),
+        side: false
     }, 
     {
         amount: new BigNumber(10),
-        price: new BigNumber(110)
+        price: new BigNumber(110),
+        side: false
     }, 
     {
         amount: new BigNumber(20),
-        price: new BigNumber(120)
+        price: new BigNumber(120),
+        side: false
+    }, 
+    {
+        amount: new BigNumber(10),
+        price: new BigNumber(100),
+        side: true 
+    }, 
+    {
+        amount: new BigNumber(10),
+        price: new BigNumber(110),
+        side: true 
+    }, 
+    {
+        amount: new BigNumber(20),
+        price: new BigNumber(120),
+        side: true
     }
 ]
 
@@ -230,8 +260,10 @@ describe('Testing CalcUnrealised', () => {
   it('Basic Positions', () => {
     let long = new BigNumber(10);
     let short = long.negated()
-
+    // no base
     expect(calcUnrealised(new BigNumber(0), position1.price, pnlOrders), 'Short 10 units').to.be.bignumber.equal(0)
+    // no shorts 
+    expect(calcUnrealised(short, position1.price, noShorts), 'No short orders').to.be.bignumber.equal(0)
     // avgPrice should be 100
     expect(calcUnrealised(short, position1.price, pnlOrders), 'Short 10 units').to.be.bignumber.equal(0)
     expect(calcUnrealised(short, new BigNumber(110), pnlOrders), 'Short 10 units, Price 110').to.be.bignumber.equal(-100)

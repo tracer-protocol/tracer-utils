@@ -1,4 +1,4 @@
-import { FlatOrder } from "../Types/accounting";
+import { FlatOrder, FlatOrderWithSide } from "../Types/accounting";
 import { BigNumber } from 'bignumber.js';
 
 const RYAN_6 = new BigNumber(6); // a number accredited to our good friend Ryan Garner
@@ -216,24 +216,24 @@ export const calcTradeExposure: (
  * @param price current price
  * @param previousOrders list of orders taken by user
  * @requires previousOrders to be ordered in descending order of timestamp
- * @requires previousOrders to be only orders relating to the current position
- *  ie. if the user is long its only long orders, if the user is short only short orders
  * @requires amount/price of orders to be in standard units
  * @returns the unrealised profit
  */
 export const calcUnrealised: (
     base: BigNumber, 
     price: BigNumber, 
-    previousOrders: FlatOrder[]
+    previousOrders: FlatOrderWithSide[]
 ) => BigNumber = (base, price, previousOrders) => {
     /** Calculate the weighted average trade price */
     if (base.eq(0)) return new BigNumber(0);
+    let position = base.lt(0) // false if long, true if short;
     let 
         remainingBase = new BigNumber(base.abs()),
         sumOfAmounts = new BigNumber(0),
         sumOfWeights = new BigNumber(0);
     for (let order of previousOrders) {
         let r = remainingBase.minus(order.amount);
+        if (order.side !== position) continue; // skip this round
         if (r.gt(0)) {
             sumOfAmounts = sumOfAmounts.plus(order.amount.times(order.price));
             sumOfWeights = sumOfWeights.plus(order.amount);
@@ -244,6 +244,7 @@ export const calcUnrealised: (
             break;
         }
     }
+    if (sumOfWeights.eq(0)) return new BigNumber(0); // exit if no orders
     let avgPrice = sumOfAmounts.div(sumOfWeights);
     return (base.times(price)).minus(base.times(avgPrice));
 }
