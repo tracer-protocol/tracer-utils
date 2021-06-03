@@ -212,14 +212,14 @@ export const calcTradeExposure: (
 /**
  * Given a users base (position) and price, calculate the unrealisedPnL
  * by determining their weighted avg buy in price that got them to that position
+ * @param base position
+ * @param price current price
+ * @param previousOrders list of orders taken by user
  * @requires previousOrders to be ordered in descending order of timestamp
  * @requires previousOrders to be only orders relating to the current position
  *  ie. if the user is long its only long orders, if the user is short only short orders
  * @requires amount/price of orders to be in standard units
- * @param base 
- * @param price 
- * @param previousOrders 
- * @returns 
+ * @returns the unrealised profit
  */
 export const calcUnrealised: (
     base: BigNumber, 
