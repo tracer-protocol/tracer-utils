@@ -7,6 +7,9 @@ import {
     Signature,
 } from "../Types/types";
 
+import { recoverTypedSignature_v4, TypedData } from "eth-sig-util";
+import { ethers } from "ethers";
+
 /* Support types for signing */
 const domain: DomainDataType = [
     { name: "name", type: "string" },
@@ -69,7 +72,8 @@ const signOrder: (
                 params: [
                     signer,
                     // sign typed data v3 expects stringified data
-                    signMethod === "eth_signTypedData_v3" || signMethod === "eth_signTypedData_v4"
+                    signMethod === "eth_signTypedData_v3" ||
+                    signMethod === "eth_signTypedData_v4"
                         ? JSON.stringify(data)
                         : data,
                 ],
@@ -155,7 +159,13 @@ const signOrders: (
 ) => Promise<
     Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
 > = async (web3, orders, traderAddress, chainId) => {
-    return _signOrders(web3, orders, traderAddress, "eth_signTypedData", chainId);
+    return _signOrders(
+        web3,
+        orders,
+        traderAddress,
+        "eth_signTypedData",
+        chainId
+    );
 };
 
 const signOrdersV3: (
@@ -166,7 +176,13 @@ const signOrdersV3: (
 ) => Promise<
     Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
 > = async (web3, orders, traderAddress, chainId) => {
-    return _signOrders(web3, orders, traderAddress, "eth_signTypedData_v3", chainId);
+    return _signOrders(
+        web3,
+        orders,
+        traderAddress,
+        "eth_signTypedData_v3",
+        chainId
+    );
 };
 
 const signOrdersV4: (
@@ -177,7 +193,48 @@ const signOrdersV4: (
 ) => Promise<
     Promise<{ order: OrderData; sigR: string; sigS: string; sigV: number }>[]
 > = async (web3, orders, traderAddress, chainId) => {
-    return _signOrders(web3, orders, traderAddress, "eth_signTypedData_v4", chainId);
+    return _signOrders(
+        web3,
+        orders,
+        traderAddress,
+        "eth_signTypedData_v4",
+        chainId
+    );
+};
+
+const verifySignatures: (
+    order: OrderData,
+    traderAddress: string,
+    sig: string,
+    signer: string,
+    chainId?: number,
+) => boolean = (
+    order: OrderData,
+    traderAddress: string,
+    sig: string,
+    signer: string,
+    chainId?: number,
+) => {
+    let _domainData = generateDomainData(traderAddress, chainId);
+    let type = {
+        EIP712Domain: domain,
+        Order: orderType,
+    };
+
+    let data: TypedData = {
+        // @ts-ignore
+        domain: _domainData,
+        primaryType: "Order",
+        message: order,
+        types: type,
+    };
+
+    let _signer : string = recoverTypedSignature_v4({
+        data,
+        sig,
+    });
+
+    return ethers.utils.getAddress(signer) === ethers.utils.getAddress(_signer)
 };
 
 export {
@@ -188,4 +245,5 @@ export {
     generateDomainData,
     domain,
     orderType,
+    verifySignatures
 };
