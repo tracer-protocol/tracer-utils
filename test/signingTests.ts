@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { generateDomainData, verifySignatures } from "../src/Signing"
+import { generateDomainData, verifySignature } from "../src/Signing"
 
 // todo would be good to test this using 
 // our sign methods too...
@@ -27,13 +27,13 @@ describe('generateDomainData', () => {
 
 describe('verifySignature', () => {
   it('returns true for correctly signed data', () => {
-    const result = verifySignatures(correctlySignedData.order, correctlySignedData.trader,
+    const result = verifySignature(correctlySignedData.order, correctlySignedData.trader,
       correctlySignedData.sig, correctlySignedData.order.maker, 42)
     expect(result).to.equal(true)
   });
 
   it('returns false for incorrectly signed data', () => {
-    const result = verifySignatures(correctlySignedData.order, correctlySignedData.trader,
+    const result = verifySignature(correctlySignedData.order, correctlySignedData.trader,
       correctlySignedData.sig, correctlySignedData.order.maker, 1337)
     expect(result).to.equal(false)
   })
