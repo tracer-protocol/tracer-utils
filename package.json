@@ -1,6 +1,6 @@
 {
   "name": "@tracer-protocol/tracer-utils",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "description": "Helpful utils",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,6 +8,8 @@
     "@types/node": "^14.14.37",
     "bignumber.js": "^9.0.1",
     "chai": "^4.3.4",
+    "eth-sig-util": "^3.0.1",
+    "ethers": "^5.3.0",
     "ganache-cli": "^6.12.2",
     "node-fetch": "^2.6.1",
     "tslib": "^2.1.0",

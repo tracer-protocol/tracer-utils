@@ -7,4 +7,4 @@ export type FlatOrder = {
 }
 
 // side is false if long
-export type FlatOrderWithSide = FlatOrder & { side: boolean }
+export type FlatOrderWithSide = FlatOrder & { position: boolean }
