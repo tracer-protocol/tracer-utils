@@ -1,8 +1,8 @@
 import { FlatOrder, FlatOrderWithSide } from "../Types/accounting";
 import { BigNumber } from 'bignumber.js';
 
-const RYAN_6 = new BigNumber(6); // a number accredited to our good friend Ryan Garner
-const LIQUIDATION_GAS_COST = new BigNumber (25); // When gas price is 250 gwei and eth price is 1700, the liquidation gas cost is 25 USD.
+export const RYAN_6 = new BigNumber(6); // a number accredited to our good friend Ryan Garner
+export const LIQUIDATION_GAS_COST = new BigNumber (25); // When gas price is 250 gwei and eth price is 1700, the liquidation gas cost is 25 USD.
 // const LIQUIDATION_PERCENTAGE = 0.075; // liquidation percentage of 7.5%
 
 /**
@@ -14,7 +14,6 @@ export const calcLeverage: (quote: BigNumber, base: BigNumber, price: BigNumber)
     if (margin.lte(0)) return new BigNumber(-1)
     return calcNotionalValue(base, price).div(margin)
 };
-
 
 
 /**
