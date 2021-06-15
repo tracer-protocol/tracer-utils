@@ -254,7 +254,7 @@ export const calcUnrealised: (
         sumOfWeights = new BigNumber(0);
     for (let order of previousOrders) {
         let r = remainingBase.minus(order.amount);
-        if (order.side !== position) continue; // skip this round
+        if (order.position !== position) continue; // skip this round
         if (r.gt(0)) {
             sumOfAmounts = sumOfAmounts.plus(order.amount.times(order.price));
             sumOfWeights = sumOfWeights.plus(order.amount);
