@@ -51,6 +51,7 @@ export type OMEOrder = {
     side: string,
     price: number | string,
     amount: number | string,
+    amount_left: number | string,
     expiration: number | string,
     created: number | string,
     signed_data: string,
