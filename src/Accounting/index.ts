@@ -155,6 +155,27 @@ export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNu
 export const calcTotalMargin: (quote: BigNumber, base: BigNumber, price: BigNumber) => BigNumber = (quote, base, price) =>
     (quote.plus(base.times(price))) ?? new BigNumber(0); // return 0 if something goes wrong
 
+
+/**
+ * Calcultes the buying power of a user based on a position
+ * @param quote Amount of quote asset
+ * @param base Amount of base asset, this is considered the position of the account
+ * @param price The given price of the asset 
+ * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
+ * @returns the value of the users buying power in quote asset
+ */
+export const calculateBuyingPower: (
+    quote: BigNumber,
+    base: BigNumber, 
+    price: BigNumber, 
+    maxLeverage: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage) => {
+    return BigNumber.max(
+        0, 
+        (calcTotalMargin(quote, base, price).minus(calcMinimumMargin(quote, base, price, maxLeverage))).times(maxLeverage)
+    )
+}
+
 /**
  * Calculates a theoretical market exposure if it took all the 'best' orders it could
  *  Returns this exposure and the orders that allow it to gain this exposure
