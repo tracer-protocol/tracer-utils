@@ -164,7 +164,7 @@ export const calcTotalMargin: (quote: BigNumber, base: BigNumber, price: BigNumb
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the value of the users buying power in quote asset
  */
-export const calculateBuyingPower: (
+export const calcBuyingPower: (
     quote: BigNumber,
     base: BigNumber, 
     price: BigNumber, 
