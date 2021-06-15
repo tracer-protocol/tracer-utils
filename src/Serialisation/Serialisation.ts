@@ -27,9 +27,7 @@ const orderToOMEOrder:(web3: any, signedOrder: SignedOrderData) => OMEOrder = (w
  * @returns an order that can be sent to the contracts
  */
 const omeOrderToOrder:(web3: any, omeOrder: OMEOrder) => SignedOrderData = (web3, omeOrder) => {
-    let sigAsByteString : string = web3.utils.bytesToHex(omeOrder.signed_data)
-    sigAsByteString = sigAsByteString.substring(2)
-
+    let sigAsByteString = omeOrder.signed_data.toString().substring(2)
     return  {
         order: {
             amount: omeOrder.amount.toString(),
