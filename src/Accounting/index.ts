@@ -177,6 +177,21 @@ export const calcBuyingPower: (
 }
 
 /**
+ * Calculates the buying power in base units
+ * @param quote Amount of quote asset
+ * @param base Amount of base asset, this is considered the position of the account
+ * @param price The given price of the asset 
+ * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
+ * @returns the value of the users buying power in base units
+ */
+export const calcMaxOrder: (
+    quote: BigNumber,
+    base: BigNumber, 
+    price: BigNumber, 
+    maxLeverage: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage) => calcBuyingPower(quote, base, price, maxLeverage).div(price)
+
+/**
  * Calculates a theoretical market exposure if it took all the 'best' orders it could
  *  Returns this exposure and the orders that allow it to gain this exposure
  * @param quote Amount of quote asset
