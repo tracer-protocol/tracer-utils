@@ -177,6 +177,25 @@ export const calcBuyingPower: (
 }
 
 /**
+ * Calcultes the remaining available margin as a percentage
+ * @param quote Amount of quote asset
+ * @param base Amount of base asset, this is considered the position of the account
+ * @param price The given price of the asset 
+ * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
+ * @returns the users remaining available margin as a percentage
+ */
+export const calcAvailableMarginPercent: (
+    quote: BigNumber,
+    base: BigNumber, 
+    price: BigNumber, 
+    maxLeverage: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage) => {
+    return new BigNumber(1).minus(
+    calcMinimumMargin(quote, base, price, maxLeverage).div(calcTotalMargin(quote, base, price))
+    ).times(100)
+}
+
+/**
  * Calculates a theoretical market exposure if it took all the 'best' orders it could
  *  Returns this exposure and the orders that allow it to gain this exposure
  * @param quote Amount of quote asset
