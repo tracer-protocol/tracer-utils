@@ -15,7 +15,7 @@ const orderToOMEOrder:(web3: any, signedOrder: SignedOrderData) => OMEOrder = (w
         amount: signedOrder.order.amount,
         expiration: signedOrder.order.expires,
         created: signedOrder.order.created,
-        signed_data: web3.utils.hexToBytes("0x" + signedOrder.sigR.substring(2) + signedOrder.sigS.substring(2) + signedOrder.sigV.toString(16)),
+        signed_data: "0x" + signedOrder.sigR.substring(2) + signedOrder.sigS.substring(2) + signedOrder.sigV.toString(16),
     } as OMEOrder
 }
 
