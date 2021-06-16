@@ -57,6 +57,19 @@ export type OMEOrder = {
     signed_data: string,
 }
 
+export type OMEReturnStruct = {
+    id: string,
+    user: string,
+    target_tracer: string,
+    side: string,
+    price: number | string,
+    quantity: number | string,
+    remaining: number | string,
+    expiration: number | string,
+    created: number | string,
+    signed_data: string,
+}
+
 export type SigningData = {
     domain: DomainData,
     primaryType: "Order",
