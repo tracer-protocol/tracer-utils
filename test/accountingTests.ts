@@ -61,44 +61,44 @@ const noShorts = [
     {
         amount: new BigNumber(10),
         price: new BigNumber(100),
-        side: false
+        position: false
     }, 
     {
         amount: new BigNumber(10),
         price: new BigNumber(110),
-        side: false
+        position: false
     }, 
 ]
 const pnlOrders  = [
     {
         amount: new BigNumber(10),
         price: new BigNumber(100),
-        side: false
+        position: false
     }, 
     {
         amount: new BigNumber(10),
         price: new BigNumber(110),
-        side: false
+        position: false
     }, 
     {
         amount: new BigNumber(20),
         price: new BigNumber(120),
-        side: false
+        position: false
     }, 
     {
         amount: new BigNumber(10),
         price: new BigNumber(100),
-        side: true 
+        position: true 
     }, 
     {
         amount: new BigNumber(10),
         price: new BigNumber(110),
-        side: true 
+        position: true 
     }, 
     {
         amount: new BigNumber(20),
         price: new BigNumber(120),
-        side: true
+        position: true
     }
 ]
 

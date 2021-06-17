@@ -6,5 +6,5 @@ export type FlatOrder = {
     amount: BigNumber,
 }
 
-// side is false if long
-export type FlatOrderWithSide = FlatOrder & { side: boolean }
+// position is false if long
+export type FlatOrderWithSide = FlatOrder & { position: boolean }
