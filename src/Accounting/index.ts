@@ -144,6 +144,12 @@ export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNu
     }
 };
 
+export const calcMinimumMarginNoExemptions: (base: BigNumber, price: BigNumber, maxLeverage: BigNumber) => BigNumber = (
+    base,
+    price,
+    maxLeverage,
+) => (LIQUIDATION_GAS_COST.times(RYAN_6)).plus(calcNotionalValue(base, price).div(maxLeverage));
+
 /**
  * Total margin of an account given a position
  *  aka equity, the amount owned by the user if they cashed out at the given price
@@ -172,7 +178,7 @@ export const calcBuyingPower: (
 ) => BigNumber = (quote, base, price, maxLeverage) => {
     return BigNumber.max(
         0, 
-        (calcTotalMargin(quote, base, price).minus(calcMinimumMargin(quote, base, price, maxLeverage))).times(maxLeverage)
+        (calcTotalMargin(quote, base, price).minus(calcMinimumMarginNoExemptions(base, price, maxLeverage))).times(maxLeverage)
     )
 }
 
