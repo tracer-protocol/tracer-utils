@@ -1,10 +1,6 @@
 {
   "name": "@tracer-protocol/tracer-utils",
-<<<<<<< Updated upstream
-  "version": "0.2.13",
-=======
   "version": "0.2.15",
->>>>>>> Stashed changes
   "description": "Helpful utils",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
