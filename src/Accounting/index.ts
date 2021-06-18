@@ -143,6 +143,12 @@ export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNu
     }
 };
 
+export const calcMinimumMarginNoExemptions: (base: BigNumber, price: BigNumber, maxLeverage: BigNumber) => BigNumber = (
+    base,
+    price,
+    maxLeverage,
+) => (LIQUIDATION_GAS_COST.times(RYAN_6)).plus(calcNotionalValue(base, price).div(maxLeverage));
+
 /**
  * Total margin of an account given a position
  *  aka equity, the amount owned by the user if they cashed out at the given price
@@ -171,8 +177,27 @@ export const calcBuyingPower: (
 ) => BigNumber = (quote, base, price, maxLeverage) => {
     return BigNumber.max(
         0, 
-        (calcTotalMargin(quote, base, price).minus(calcMinimumMargin(quote, base, price, maxLeverage))).times(maxLeverage)
+        (calcTotalMargin(quote, base, price).minus(calcMinimumMarginNoExemptions(base, price, maxLeverage))).times(maxLeverage)
     )
+}
+
+/**
+ * Calcultes the remaining available margin as a percentage
+ * @param quote Amount of quote asset
+ * @param base Amount of base asset, this is considered the position of the account
+ * @param price The given price of the asset 
+ * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
+ * @returns the users remaining available margin as a percentage
+ */
+export const calcAvailableMarginPercent: (
+    quote: BigNumber,
+    base: BigNumber, 
+    price: BigNumber, 
+    maxLeverage: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage) => {
+    return new BigNumber(1).minus(
+    calcMinimumMargin(quote, base, price, maxLeverage).div(calcTotalMargin(quote, base, price))
+    ).times(100)
 }
 
 /**
