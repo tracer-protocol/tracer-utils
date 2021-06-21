@@ -83,7 +83,7 @@ const signOrder: (
                 if (err || result.error) {
                     reject(err ?? result.error);
                 }
-                console.log(result);
+                console.debug("Signing result", result);
                 try {
                     let parsedSig = result.result.substring(2);
                     const r: string = "0x" + parsedSig.substring(0, 64);

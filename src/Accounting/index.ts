@@ -267,7 +267,6 @@ export const calcSlippage: (
     leverage: BigNumber,
     orders: FlatOrder[],
 ) => { slippage: BigNumber, tradePrice: BigNumber} = (orderAmount, leverage, orders) => {
-    console.log(orderAmount, leverage, orders)
     if (orders.length) {
         // weighted average of the price, where the weights are the amounts at each price
         let 
