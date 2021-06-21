@@ -195,8 +195,10 @@ export const calcAvailableMarginPercent: (
     price: BigNumber, 
     maxLeverage: BigNumber
 ) => BigNumber = (quote, base, price, maxLeverage) => {
+    const totalMargin = calcTotalMargin(quote, base, price);
+    if (totalMargin.eq(0)) return new BigNumber(0)
     return new BigNumber(1).minus(
-    calcMinimumMargin(quote, base, price, maxLeverage).div(calcTotalMargin(quote, base, price))
+        calcMinimumMargin(quote, base, price, maxLeverage).div(calcTotalMargin(quote, base, price))
     ).times(100)
 }
 
@@ -206,7 +208,7 @@ export const calcAvailableMarginPercent: (
  * @param quote Amount of quote asset
  * @param leverage leverage of the trade this could be passed in as quote leverage * quote
  */
-export const calcTradeExposure: (
+export const calcTradeExposureFromQuoteAndLeverage: (
     quote: BigNumber,
     leverage: BigNumber,
     orders: FlatOrder[],
@@ -249,6 +251,56 @@ export const calcTradeExposure: (
     }
     return {
         exposure: new BigNumber(0),
+        slippage: new BigNumber(0),
+        tradePrice: new BigNumber(0)
+    };
+};
+
+/**
+ * Calculates a theoretical market exposure if it took all the 'best' orders it could
+ *  Returns this exposure and the orders that allow it to gain this exposure
+ * @param quote Amount of quote asset
+ * @param leverage leverage of the trade this could be passed in as quote leverage * quote
+ */
+export const calcSlippage: (
+    orderAmount: BigNumber,
+    leverage: BigNumber,
+    orders: FlatOrder[],
+) => { slippage: BigNumber, tradePrice: BigNumber} = (orderAmount, leverage, orders) => {
+    console.log(orderAmount, leverage, orders)
+    if (orders.length) {
+        // weighted average of the price, where the weights are the amounts at each price
+        let 
+            totalAmount = orderAmount.times(leverage),
+            sumOfWeights = new BigNumber(0),
+            totalUnits = new BigNumber(0);
+        for (const order of orders) {
+            const amount = order.amount;
+            const orderPrice = order.price;
+            // remainding units of accounts quote use
+            const r = totalAmount.minus(amount);
+            if (r.gte(0)) { // if it can eat the whole order
+                totalUnits = totalUnits.plus(orderPrice.times(amount));
+                sumOfWeights = sumOfWeights.plus(amount);
+                totalAmount = totalAmount.minus(amount); // subtract the remainder in units of underLying
+            } else { // eat a bit of the order nom nom
+                // if we get here the max amount we can is the remainder of deposit
+                if (!totalAmount.eq(0)) {
+                    totalUnits = totalUnits.plus(totalAmount.times(orderPrice));
+                    sumOfWeights = sumOfWeights.plus(totalAmount);
+                }
+                break;
+            }
+        }
+        const expectedPrice = orders[0].price;
+        // this is a weighted average of the prices and how much was taken at each price
+        const tradePrice = !totalUnits.eq(0) ? totalUnits.div(sumOfWeights) : expectedPrice;
+        return {
+            slippage: (expectedPrice.minus(tradePrice).abs()).div(expectedPrice),
+            tradePrice: tradePrice
+        };
+    }
+    return {
         slippage: new BigNumber(0),
         tradePrice: new BigNumber(0)
     };
