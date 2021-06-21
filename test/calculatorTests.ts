@@ -25,7 +25,7 @@ const five = new BigNumber(5);
 const oneThousand = new BigNumber(1000);
 
 /** EXPOSURE AND LEVERAGE */
-describe('calcFromExposureAndLeverage', () => {
+describe.skip('calcFromExposureAndLeverage', () => {
   it('lilPrice at 5x long', () => {
     const { 
 		exposure, 
@@ -77,7 +77,7 @@ describe('calcFromExposureAndLeverage', () => {
 })
 
 /** EXPOSURE AND MARGIN */
-describe('calcFromExposureAndMargin', () => {
+describe.skip('calcFromExposureAndMargin', () => {
   it('lilPrice for 20 ETH deposit 1 long', () => {
     const { 
 		exposure, 
@@ -129,7 +129,7 @@ describe('calcFromExposureAndMargin', () => {
 })
 
 /** LEVERAGE AND LIQUIDATION */
-describe('calcFromLeverageAndLiquidation', () => {
+describe.skip('calcFromLeverageAndLiquidation', () => {
   it('lilPrice at 35x long', () => {
     const { 
 		exposure, 
@@ -181,7 +181,7 @@ describe('calcFromLeverageAndLiquidation', () => {
 })
 
 /** EXPOSURE AND LIQUIDATION */
-describe('calcFromExposureAndLiquidation', () => {
+describe.skip('calcFromExposureAndLiquidation', () => {
   it('lilPrice 35 units at 0.5 liquidation long', () => {
     const { 
 		exposure, 
@@ -233,7 +233,7 @@ describe('calcFromExposureAndLiquidation', () => {
 })
 
 /** MARGIN AND LEVERAGE */
-describe('calcFromMarginAndLeverage', () => {
+describe.skip('calcFromMarginAndLeverage', () => {
   it('10x with 300 deposit long', () => {
     const { 
 		exposure, 
@@ -285,7 +285,7 @@ describe('calcFromMarginAndLeverage', () => {
 })
 
 /** MARGIN AND LIQUIDATION */
-describe('calcFromMarginAndLiquidation', () => {
+describe.skip('calcFromMarginAndLiquidation', () => {
   it('400 deposit and 0.5 liquidation long', () => {
     const { 
 		exposure, 
