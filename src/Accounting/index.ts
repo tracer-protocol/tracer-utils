@@ -26,21 +26,28 @@ export const calcLeverage: (quote: BigNumber, base: BigNumber, price: BigNumber)
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the price of the asset where the account is eligible for liquidation
  */
-export const calcLiquidationPrice: (quote: BigNumber, base: BigNumber, price: BigNumber, maxLeverage: BigNumber) => BigNumber = (
+export const calcLiquidationPrice: (
+    quote: BigNumber,
+    base: BigNumber,
+    price: BigNumber,
+    maxLeverage: BigNumber,
+    liquidationGasCost: BigNumber
+) => BigNumber = (
     quote,
     base,
     price,
     maxLeverage,
+    liquidationGasCost
 ) => {
     const borrowed = calcBorrowed(quote, base, price);
     if (borrowed.gt(0) || base.lt(0)) { // if the user has a position
         if (base.gt(0)) { // if the user is long
             return (
-                (maxLeverage.times(quote.minus(RYAN_6.times(LIQUIDATION_GAS_COST)))).div(base.minus(maxLeverage.times(base)))
+                (maxLeverage.times(quote.minus(RYAN_6.times(liquidationGasCost)))).div(base.minus(maxLeverage.times(base)))
             )
         } else if (base.lt(0)) { // if the user is short
             return (
-                (quote.times(maxLeverage).minus(RYAN_6.times(LIQUIDATION_GAS_COST).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated() 
+                (quote.times(maxLeverage).minus(RYAN_6.times(liquidationGasCost).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated() 
             )
         } // impossible case of base === 0 because calcBorrowed will return 0 if base is 0
     } 
@@ -64,16 +71,17 @@ export const calcProfitableLiquidationPrice: (
     base: BigNumber,
     price: BigNumber,
     maxLeverage: BigNumber,
-) => BigNumber = (quote, base, price, maxLeverage) => {
+    liquidationGasCost: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage, liquidationGasCost) => {
     const borrowed = calcBorrowed(quote, base, price);
     if (borrowed.gt(0) || base.lt(0)) { // if the user has a position
         if (base.gt(0)) { // if the user is long
             return (
-                (maxLeverage.times(quote.minus(RYAN_6.times(LIQUIDATION_GAS_COST).minus(LIQUIDATION_GAS_COST)))).div(base.minus(maxLeverage.times(base)))
+                (maxLeverage.times(quote.minus(RYAN_6.times(liquidationGasCost).minus(liquidationGasCost)))).div(base.minus(maxLeverage.times(base)))
             )
         } else if (base.lt(0)) { // if the user is short
             return (
-                (quote.times(maxLeverage).minus((RYAN_6.times(LIQUIDATION_GAS_COST).minus(LIQUIDATION_GAS_COST)).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated() 
+                (quote.times(maxLeverage).minus((RYAN_6.times(liquidationGasCost).minus(liquidationGasCost)).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated() 
             )
         } // impossible case of base === 0 because calcBorrowed will return 0 if base is 0
     } 
@@ -102,13 +110,14 @@ export const calcBorrowed: (quote: BigNumber, base: BigNumber, price: BigNumber)
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the withdrawable amount of quote asset.
  */
-export const calcWithdrawable: (quote: BigNumber, base: BigNumber, price: BigNumber, maxLeverage: BigNumber) => BigNumber = (
+export const calcWithdrawable: (quote: BigNumber, base: BigNumber, price: BigNumber, maxLeverage: BigNumber, liquidationGasCost: BigNumber) => BigNumber = (
     quote,
     base,
     price,
     maxLeverage,
+    liquidationGasCost
 ) => {
-    return calcTotalMargin(quote, base, price).minus((!(base.eq(0)) ? LIQUIDATION_GAS_COST.times(RYAN_6).plus(calcNotionalValue(base, price).div(maxLeverage)) : 0));
+    return calcTotalMargin(quote, base, price).minus((!(base.eq(0)) ? liquidationGasCost.times(RYAN_6).plus(calcNotionalValue(base, price).div(maxLeverage)) : 0));
 };
 
 /**
@@ -129,15 +138,16 @@ export const calcNotionalValue: (base: BigNumber, price: BigNumber) => BigNumber
  * @returns the minimum margin required for an accounts outstanding position. 
  *  An account with minimumMargin are in a position close to liquidation.
  */
-export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNumber, maxLeverage: BigNumber) => BigNumber = (
+export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNumber, maxLeverage: BigNumber, liquidationGasCost: BigNumber) => BigNumber = (
     quote,
     base,
     price,
     maxLeverage,
+    liquidationGasCost
 ) => {
     const borrowed = calcBorrowed(quote, base, price);
     if (borrowed.gt(0) || base.lt(0)) {
-        return (LIQUIDATION_GAS_COST.times(RYAN_6)).plus(calcNotionalValue(base, price).div(maxLeverage));
+        return (liquidationGasCost.times(RYAN_6)).plus(calcNotionalValue(base, price).div(maxLeverage));
     } else {
         return new BigNumber(0);
     }
@@ -193,10 +203,11 @@ export const calcAvailableMarginPercent: (
     quote: BigNumber,
     base: BigNumber, 
     price: BigNumber, 
-    maxLeverage: BigNumber
-) => BigNumber = (quote, base, price, maxLeverage) => {
+    maxLeverage: BigNumber,
+    liquidationGasCost: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage, liquidationGasCost) => {
     return new BigNumber(1).minus(
-    calcMinimumMargin(quote, base, price, maxLeverage).div(calcTotalMargin(quote, base, price))
+    calcMinimumMargin(quote, base, price, maxLeverage, liquidationGasCost).div(calcTotalMargin(quote, base, price))
     ).times(100)
 }
 

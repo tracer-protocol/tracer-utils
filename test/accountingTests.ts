@@ -24,22 +24,26 @@ import { BigNumber } from 'bignumber.js';
 // The user holds a position not in liquidation
 // Deposit 200 at $100, short 10 units
 const position1 = {
-  quote: new BigNumber(1200), base: new BigNumber(-10), price: new BigNumber(100), maxLeverage: new BigNumber(50)
+  quote: new BigNumber(1200), base: new BigNumber(-10), price: new BigNumber(100), maxLeverage: new BigNumber(50), liquidationGasCost: new BigNumber("19.4")
 }
 // 25 leverage
 const position2 = {
-  quote: new BigNumber(-9600), base: new BigNumber(100), price: new BigNumber(100), maxLeverage: new BigNumber(50)
+  quote: new BigNumber(-9600), base: new BigNumber(100), price: new BigNumber(100), maxLeverage: new BigNumber(50), liquidationGasCost: new BigNumber("19.4")
+}
+
+const position3 = {
+  quote: new BigNumber(-9600.5), base: new BigNumber(100.3), price: new BigNumber(100.43), maxLeverage: new BigNumber(50), liquidationGasCost: new BigNumber("19.4")
 }
 // Invalid positions
 // The user holds a position and can be liquidated
 // no margin
 const invalid1 = {
-  quote: new BigNumber(-1000), base: new BigNumber(10), price: new BigNumber(100), maxLeverage: new BigNumber(50)
+  quote: new BigNumber(-1000), base: new BigNumber(10), price: new BigNumber(100), maxLeverage: new BigNumber(50), liquidationGasCost: new BigNumber("19.4")
 }
 // not enough margin due to liquidation gas prices
 // is actually a valid position otherwise
 const invalid2 = {
-  quote: new BigNumber(2050), base: new BigNumber(-20), price: new BigNumber(100), maxLeverage: new BigNumber(50)
+  quote: new BigNumber(2050), base: new BigNumber(-20), price: new BigNumber(100), maxLeverage: new BigNumber(50), liquidationGasCost: new BigNumber("19.4")
 }
 
 const orders = [
@@ -189,12 +193,13 @@ describe("Testing calcNotional", () => {
 
 describe("Testing Minimum margin", () => {
   it('Basic Positions', () => {
-    expect(calcMinimumMargin(position1.quote, position1.base, position1.price, position1.maxLeverage), 'Position 1').to.be.bignumber.equal(170)
-    expect(calcMinimumMargin(position2.quote, position2.base, position2.price, position2.maxLeverage), 'Position 2').to.be.bignumber.equal(350)
+    expect(calcMinimumMargin(position1.quote, position1.base, position1.price, position1.maxLeverage, position1.liquidationGasCost), 'Position 1').to.be.bignumber.equal(136.4)
+    expect(calcMinimumMargin(position2.quote, position2.base, position2.price, position2.maxLeverage, position2.liquidationGasCost), 'Position 2').to.be.bignumber.equal(316.4)
+    expect(calcMinimumMargin(position3.quote, position3.base, position3.price, position3.maxLeverage, position3.liquidationGasCost), 'Position 2').to.be.bignumber.equal(317.86258)
   })
   it('Invalid Positions', () => {
-    expect(calcMinimumMargin(invalid1.quote, invalid1.base, invalid1.price, invalid1.maxLeverage), 'Invalid 1').to.be.bignumber.equal(170)
-    expect(calcMinimumMargin(invalid2.quote, invalid2.base, invalid2.price, invalid2.maxLeverage), 'Invalid 2').to.be.bignumber.equal(190)
+    expect(calcMinimumMargin(invalid1.quote, invalid1.base, invalid1.price, invalid1.maxLeverage, invalid1.liquidationGasCost), 'Invalid 1').to.be.bignumber.equal(136.4)
+    expect(calcMinimumMargin(invalid2.quote, invalid2.base, invalid2.price, invalid2.maxLeverage, invalid2.liquidationGasCost), 'Invalid 2').to.be.bignumber.equal(156.4)
   })
 })
 
@@ -246,13 +251,13 @@ describe("Testing profitableForLiquidationPrice", () => {
 
 describe('Testing Withdrawable', () => {
   it('Basic Positions', () => {
-    expect(calcWithdrawable(position1.quote, position1.base, position1.price, position1.maxLeverage), 'Position 1').to.be.bignumber.equal(30)
-    expect(calcWithdrawable(position2.quote, position2.base, position2.price, position2.maxLeverage), 'Position 2').to.be.bignumber.equal(50)
+    expect(calcWithdrawable(position1.quote, position1.base, position1.price, position1.maxLeverage, position1.liquidationGasCost), 'Position 1').to.be.bignumber.equal(63.6)
+    expect(calcWithdrawable(position2.quote, position2.base, position2.price, position2.maxLeverage, position2.liquidationGasCost), 'Position 2').to.be.bignumber.equal(83.6)
   })
   it('Invalid Positions', () => {
     // they cannot withdraw anything
-    expect(calcWithdrawable(invalid1.quote, invalid1.base, invalid1.price, invalid1.maxLeverage), 'Invalid 1').to.be.bignumber.equal(-170)
-    expect(calcWithdrawable(invalid2.quote, invalid2.base, invalid2.price, invalid2.maxLeverage), 'Invalid 2').to.be.bignumber.equal(-140)
+    expect(calcWithdrawable(invalid1.quote, invalid1.base, invalid1.price, invalid1.maxLeverage, invalid1.liquidationGasCost), 'Invalid 1').to.be.bignumber.equal(-136.4)
+    expect(calcWithdrawable(invalid2.quote, invalid2.base, invalid2.price, invalid2.maxLeverage, invalid2.liquidationGasCost), 'Invalid 2').to.be.bignumber.equal(-106.4)
   })
 })
 
