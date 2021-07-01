@@ -6,7 +6,7 @@ chai.use(require('chai-bignumber')());
 
 
 import { 
-  calcTradeExposure,
+  calcTradeExposureFromQuoteAndLeverage,
   calcBorrowed,
   calcTotalMargin,
   calcMinimumMargin,
@@ -103,29 +103,29 @@ const pnlOrders  = [
 ]
 
 
-describe.skip('calcTradeExposure', () => {
+describe.skip('calcTradeExposureFromQuoteAndLeverage', () => {
   it('no orders', () => {
-    const { exposure, slippage, tradePrice } = calcTradeExposure(new BigNumber(0), new BigNumber(1), [])
+    const { exposure, slippage, tradePrice } = calcTradeExposureFromQuoteAndLeverage(new BigNumber(0), new BigNumber(1), [])
     expect(exposure).to.be.bignumber.equal(0);
     expect(slippage).to.be.bignumber.equal(0);
     expect(tradePrice).to.be.bignumber.equal(0);
   });
 
   it('no margin, no exposure', () => {
-    const { exposure, slippage, tradePrice } = calcTradeExposure(new BigNumber(0), new BigNumber(1), orders)
+    const { exposure, slippage, tradePrice } = calcTradeExposureFromQuoteAndLeverage(new BigNumber(0), new BigNumber(1), orders)
     expect(exposure).to.be.bignumber.equal(0);
     expect(slippage).to.be.bignumber.equal(0);
     expect(tradePrice).to.be.bignumber.equal(1);
   });
   it('quote <= order[0].notional', () => {
-    const { exposure, slippage, tradePrice } = calcTradeExposure(new BigNumber(10), new BigNumber(1), orders)
+    const { exposure, slippage, tradePrice } = calcTradeExposureFromQuoteAndLeverage(new BigNumber(10), new BigNumber(1), orders)
     expect(exposure).to.be.bignumber.equal(10);
     expect(slippage).to.be.bignumber.equal(0)
     expect(tradePrice).to.be.bignumber.equal(1);
 
   });
   it('order[0].notional <= quote <= order[1].notional', () => {
-    const { exposure, slippage, tradePrice } = calcTradeExposure(new BigNumber(20), new BigNumber(1), orders)
+    const { exposure, slippage, tradePrice } = calcTradeExposureFromQuoteAndLeverage(new BigNumber(20), new BigNumber(1), orders)
     expect(exposure.toNumber()).to.be.bignumber.equal(19.09090909090909);
     // actual paid price === 1.05
     expect(slippage).to.be.bignumber.equal(0.05)
@@ -141,7 +141,7 @@ describe.skip('calcTradeExposure', () => {
         // 36 - (30 * 1.2) - 0 left over
     // price should be (10 * 1 + 20 * 1.1 + 30 * 1.2) / 60
     // trade price at 1.133333333
-    const { exposure, slippage, tradePrice } = calcTradeExposure(new BigNumber(68), new BigNumber(1), orders)
+    const { exposure, slippage, tradePrice } = calcTradeExposureFromQuoteAndLeverage(new BigNumber(68), new BigNumber(1), orders)
     expect(exposure).to.be.bignumber.equal(68)
     expect(slippage).to.be.bignumber.equal(new BigNumber('0.13333333333333333333'))
     // 10 0's
@@ -149,7 +149,7 @@ describe.skip('calcTradeExposure', () => {
   });
   it('takes all orders and beyond', () => {
     // should be same as above
-    const { exposure, slippage, tradePrice } = calcTradeExposure(new BigNumber(300), new BigNumber(1), orders)
+    const { exposure, slippage, tradePrice } = calcTradeExposureFromQuoteAndLeverage(new BigNumber(300), new BigNumber(1), orders)
     expect(exposure).to.be.bignumber.equal(68)
     expect(slippage).to.be.bignumber.equal(new BigNumber('0.13333333333333333333'))
     // 10 0's
@@ -157,7 +157,7 @@ describe.skip('calcTradeExposure', () => {
   });
   it('takes all orders with leverage', () => {
     // should be same as above
-    const { exposure, slippage, tradePrice } = calcTradeExposure(new BigNumber(34), new BigNumber(2), orders)
+    const { exposure, slippage, tradePrice } = calcTradeExposureFromQuoteAndLeverage(new BigNumber(34), new BigNumber(2), orders)
     expect(exposure).to.be.bignumber.equal(68)
     expect(slippage).to.be.bignumber.equal(new BigNumber('0.13333333333333333333'))
     // 10 0's
