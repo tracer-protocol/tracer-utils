@@ -12,6 +12,7 @@ const ONE = new BigNumber(1);
  * @returns an APY decimal percentage
  */
 export const calcInsuranceAPY = (fundingRate: BigNumber, insuranceFundHoldings: BigNumber, leveragedNotionalValue: BigNumber) => {
+	if (insuranceFundHoldings.eq(0)) return new BigNumber(0);
 	const apr = calcInsuranceAPR(fundingRate, insuranceFundHoldings, leveragedNotionalValue);
 	return (
 		((ONE.plus(apr.div(HOURLY_COMPOUND_FREQUENCY))).pow(HOURLY_COMPOUND_FREQUENCY))
@@ -27,6 +28,7 @@ export const calcInsuranceAPY = (fundingRate: BigNumber, insuranceFundHoldings: 
  * @returns an APR decimal percentage
  */
 export const calcInsuranceAPR = (fundingRate: BigNumber, insuranceFundHoldings: BigNumber, leveragedNotionalValue: BigNumber) => {
+	if (insuranceFundHoldings.eq(0)) return new BigNumber(0);
 	return (
 		(leveragedNotionalValue.times(fundingRate.times(HOURLY_COMPOUND_FREQUENCY))
 			.div(insuranceFundHoldings))
