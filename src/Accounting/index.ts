@@ -1,8 +1,9 @@
-import { FlatOrder, FlatOrderWithSide } from "../Types/accounting";
+import { FlatOrder, FlatOrderWithSide, Position } from "../Types/accounting";
 import { BigNumber } from 'bignumber.js';
 
 export const RYAN_6 = new BigNumber(6); // a number accredited to our good friend Ryan Garner
 export const LIQUIDATION_GAS_COST = new BigNumber (1); // When gas price is 250 gwei and eth price is 1700, the liquidation gas cost is 25 USD.
+export const WAD_BASE = new BigNumber(10).pow(18)
 // const LIQUIDATION_PERCENTAGE = 0.075; // liquidation percentage of 7.5%
 
 /**
@@ -18,11 +19,11 @@ export const calcLeverage: (quote: BigNumber, base: BigNumber, price: BigNumber)
 
 /**
  * A function that returns the liquidation price for a given account.
- *  This is the eligible liquidation price. 
+ *  This is the eligible liquidation price.
  *  Given BTC/USD the quote is USD and the base is BTC
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the price of the asset where the account is eligible for liquidation
  */
@@ -40,10 +41,10 @@ export const calcLiquidationPrice: (quote: BigNumber, base: BigNumber, price: Bi
             )
         } else if (base.lt(0)) { // if the user is short
             return (
-                (quote.times(maxLeverage).minus(RYAN_6.times(LIQUIDATION_GAS_COST).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated() 
+                (quote.times(maxLeverage).minus(RYAN_6.times(LIQUIDATION_GAS_COST).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated()
             )
         } // impossible case of base === 0 because calcBorrowed will return 0 if base is 0
-    } 
+    }
     // all else
     return new BigNumber(0);
 };
@@ -55,7 +56,7 @@ export const calcLiquidationPrice: (quote: BigNumber, base: BigNumber, price: Bi
  *  Given BTC/USD the quote is USD and the base is BTC
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the price of the asset where it is profitible for a liquidator to liquidate the account
  */
@@ -73,10 +74,10 @@ export const calcProfitableLiquidationPrice: (
             )
         } else if (base.lt(0)) { // if the user is short
             return (
-                (quote.times(maxLeverage).minus((RYAN_6.times(LIQUIDATION_GAS_COST).minus(LIQUIDATION_GAS_COST)).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated() 
+                (quote.times(maxLeverage).minus((RYAN_6.times(LIQUIDATION_GAS_COST).minus(LIQUIDATION_GAS_COST)).times(maxLeverage)).div(maxLeverage.times(base).plus(base))).negated()
             )
         } // impossible case of base === 0 because calcBorrowed will return 0 if base is 0
-    } 
+    }
     // all else
     return new BigNumber(0);
 };
@@ -86,7 +87,7 @@ export const calcProfitableLiquidationPrice: (
  *  Given BTC/USD the quote is USD and the base is BTC
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @returns the amount borrowed by an account or 0 if the borrowed amount is negative
  */
 export const calcBorrowed: (quote: BigNumber, base: BigNumber, price: BigNumber) => BigNumber = (quote, base, price) =>
@@ -98,7 +99,7 @@ export const calcBorrowed: (quote: BigNumber, base: BigNumber, price: BigNumber)
  *  Given BTC/USD the quote is USD and the base is BTC
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the withdrawable amount of quote asset.
  */
@@ -114,7 +115,7 @@ export const calcWithdrawable: (quote: BigNumber, base: BigNumber, price: BigNum
 /**
  * Calculates the notional value of the position
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @returns the notional value of the position
  */
 export const calcNotionalValue: (base: BigNumber, price: BigNumber) => BigNumber = (base, price) => {
@@ -125,8 +126,8 @@ export const calcNotionalValue: (base: BigNumber, price: BigNumber) => BigNumber
  * Calculates the minimum margin required for a given position and price. This is closely related to the liquidationPrice
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
- * @returns the minimum margin required for an accounts outstanding position. 
+ * @param price The given price of the asset
+ * @returns the minimum margin required for an accounts outstanding position.
  *  An account with minimumMargin are in a position close to liquidation.
  */
 export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNumber, maxLeverage: BigNumber) => BigNumber = (
@@ -154,7 +155,7 @@ export const calcMinimumMarginNoExemptions: (base: BigNumber, price: BigNumber, 
  *  aka equity, the amount owned by the user if they cashed out at the given price
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @returns the total margin of an account
  */
 export const calcTotalMargin: (quote: BigNumber, base: BigNumber, price: BigNumber) => BigNumber = (quote, base, price) =>
@@ -165,18 +166,18 @@ export const calcTotalMargin: (quote: BigNumber, base: BigNumber, price: BigNumb
  * Calcultes the buying power of a user based on a position
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the value of the users buying power in quote asset
  */
 export const calcBuyingPower: (
     quote: BigNumber,
-    base: BigNumber, 
-    price: BigNumber, 
+    base: BigNumber,
+    price: BigNumber,
     maxLeverage: BigNumber
 ) => BigNumber = (quote, base, price, maxLeverage) => {
     return BigNumber.max(
-        0, 
+        0,
         (calcTotalMargin(quote, base, price).minus(calcMinimumMarginNoExemptions(base, price, maxLeverage))).times(maxLeverage)
     )
 }
@@ -185,14 +186,14 @@ export const calcBuyingPower: (
  * Calcultes the remaining available margin as a percentage
  * @param quote Amount of quote asset
  * @param base Amount of base asset, this is considered the position of the account
- * @param price The given price of the asset 
+ * @param price The given price of the asset
  * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
  * @returns the users remaining available margin as a percentage
  */
 export const calcAvailableMarginPercent: (
     quote: BigNumber,
-    base: BigNumber, 
-    price: BigNumber, 
+    base: BigNumber,
+    price: BigNumber,
     maxLeverage: BigNumber
 ) => BigNumber = (quote, base, price, maxLeverage) => {
     const totalMargin = calcTotalMargin(quote, base, price);
@@ -239,7 +240,7 @@ export const calcTradeExposureFromQuoteAndLeverage: (
                 break;
             }
         }
-        
+
         const expectedPrice = orders[0].price;
         // this is a weighted average of the prices and how much was taken at each price
         const tradePrice = !totalUnits.eq(0) ? totalUnits.div(sumOfWeights) : expectedPrice;
@@ -269,7 +270,7 @@ export const calcSlippage: (
 ) => { slippage: BigNumber, tradePrice: BigNumber} = (orderAmount, leverage, orders) => {
     if (orders.length) {
         // weighted average of the price, where the weights are the amounts at each price
-        let 
+        let
             totalAmount = orderAmount.times(leverage),
             sumOfWeights = new BigNumber(0),
             totalUnits = new BigNumber(0);
@@ -316,14 +317,14 @@ export const calcSlippage: (
  * @returns the unrealised profit
  */
 export const calcUnrealised: (
-    base: BigNumber, 
-    price: BigNumber, 
+    base: BigNumber,
+    price: BigNumber,
     previousOrders: FlatOrderWithSide[]
 ) => BigNumber = (base, price, previousOrders) => {
     /** Calculate the weighted average trade price */
     if (base.eq(0)) return new BigNumber(0);
     let position = base.lt(0) // false if long, true if short;
-    let 
+    let
         remainingBase = new BigNumber(base.abs()),
         sumOfAmounts = new BigNumber(0),
         sumOfWeights = new BigNumber(0);
@@ -344,3 +345,56 @@ export const calcUnrealised: (
     let avgPrice = sumOfAmounts.div(sumOfWeights);
     return (base.times(price)).minus(base.times(avgPrice));
 }
+
+/**
+ * Given a users position and a trade, returns the users new position after the trade has been applied
+ * @param base position
+ * @param price current price
+ * @param feeRate fee rate of the market eg. 0.02 for 2%
+ * @requires the trade amount to be denoted in a token with 18 decimal places
+ * @returns the users new position
+ */
+export const calcPositionAfterTrade: (
+    position: Position,
+    trade: FlatOrderWithSide,
+    feeRate: BigNumber
+) => Position = (position, trade, feeRate) => {
+    const quoteChange = trade.amount.times(trade.price);
+    const fee = calcFee(trade.amount, trade.price, feeRate);
+
+    let newQuote = new BigNumber(0);
+    let newBase = new BigNumber(0);
+
+    // long
+    if(!trade.position) {
+        newBase = position.base.plus(trade.amount);
+        newQuote = position.quote.minus(quoteChange.plus(fee));
+    } else {
+        newBase = position.base.minus(trade.amount);
+        newQuote = position.quote.plus(quoteChange.minus(fee));
+    }
+
+    return {
+        quote: newQuote,
+        base: newBase
+    }
+}
+
+/**
+ * Gets the fee of the trade given the amount, execution price and feeRate
+ * @param amount
+ * @param executionPrice
+ * @param feeRate
+ * @returns the total fee to perform the trade
+ */
+export const calcFee: (
+    amount: BigNumber,
+    executionPrice: BigNumber,
+    feeRate: BigNumber
+) => BigNumber = (amount, executionPrice, feeRate) => {
+    const quoteChange = amount.times(executionPrice)
+
+    return quoteChange.times(feeRate)
+}
+
+export const fromWad: (wad: string) => BigNumber = (wad: string) => new BigNumber(wad).div(WAD_BASE)
