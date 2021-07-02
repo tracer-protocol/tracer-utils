@@ -1,8 +1,8 @@
 import { FlatOrder, FlatOrderWithSide } from "../Types/accounting";
 import { BigNumber } from 'bignumber.js';
 
-const RYAN_6 = new BigNumber(6); // a number accredited to our good friend Ryan Garner
-const LIQUIDATION_GAS_COST = new BigNumber (25); // When gas price is 250 gwei and eth price is 1700, the liquidation gas cost is 25 USD.
+export const RYAN_6 = new BigNumber(6); // a number accredited to our good friend Ryan Garner
+export const LIQUIDATION_GAS_COST = new BigNumber (1); // When gas price is 250 gwei and eth price is 1700, the liquidation gas cost is 25 USD.
 // const LIQUIDATION_PERCENTAGE = 0.075; // liquidation percentage of 7.5%
 
 /**
@@ -14,7 +14,6 @@ export const calcLeverage: (quote: BigNumber, base: BigNumber, price: BigNumber)
     if (margin.lte(0)) return new BigNumber(-1)
     return calcNotionalValue(base, price).div(margin)
 };
-
 
 
 /**
@@ -144,6 +143,12 @@ export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNu
     }
 };
 
+export const calcMinimumMarginNoExemptions: (base: BigNumber, price: BigNumber, maxLeverage: BigNumber) => BigNumber = (
+    base,
+    price,
+    maxLeverage,
+) => (LIQUIDATION_GAS_COST.times(RYAN_6)).plus(calcNotionalValue(base, price).div(maxLeverage));
+
 /**
  * Total margin of an account given a position
  *  aka equity, the amount owned by the user if they cashed out at the given price
@@ -155,13 +160,55 @@ export const calcMinimumMargin: (quote: BigNumber, base: BigNumber, price: BigNu
 export const calcTotalMargin: (quote: BigNumber, base: BigNumber, price: BigNumber) => BigNumber = (quote, base, price) =>
     (quote.plus(base.times(price))) ?? new BigNumber(0); // return 0 if something goes wrong
 
+
+/**
+ * Calcultes the buying power of a user based on a position
+ * @param quote Amount of quote asset
+ * @param base Amount of base asset, this is considered the position of the account
+ * @param price The given price of the asset 
+ * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
+ * @returns the value of the users buying power in quote asset
+ */
+export const calcBuyingPower: (
+    quote: BigNumber,
+    base: BigNumber, 
+    price: BigNumber, 
+    maxLeverage: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage) => {
+    return BigNumber.max(
+        0, 
+        (calcTotalMargin(quote, base, price).minus(calcMinimumMarginNoExemptions(base, price, maxLeverage))).times(maxLeverage)
+    )
+}
+
+/**
+ * Calcultes the remaining available margin as a percentage
+ * @param quote Amount of quote asset
+ * @param base Amount of base asset, this is considered the position of the account
+ * @param price The given price of the asset 
+ * @param maxLeverage The maximum leverage accounts can trade at. This is specific to the Tracer market
+ * @returns the users remaining available margin as a percentage
+ */
+export const calcAvailableMarginPercent: (
+    quote: BigNumber,
+    base: BigNumber, 
+    price: BigNumber, 
+    maxLeverage: BigNumber
+) => BigNumber = (quote, base, price, maxLeverage) => {
+    const totalMargin = calcTotalMargin(quote, base, price);
+    if (totalMargin.eq(0)) return new BigNumber(0)
+    return new BigNumber(1).minus(
+        calcMinimumMargin(quote, base, price, maxLeverage).div(calcTotalMargin(quote, base, price))
+    ).times(100)
+}
+
 /**
  * Calculates a theoretical market exposure if it took all the 'best' orders it could
  *  Returns this exposure and the orders that allow it to gain this exposure
  * @param quote Amount of quote asset
  * @param leverage leverage of the trade this could be passed in as quote leverage * quote
  */
-export const calcTradeExposure: (
+export const calcTradeExposureFromQuoteAndLeverage: (
     quote: BigNumber,
     leverage: BigNumber,
     orders: FlatOrder[],
@@ -204,6 +251,55 @@ export const calcTradeExposure: (
     }
     return {
         exposure: new BigNumber(0),
+        slippage: new BigNumber(0),
+        tradePrice: new BigNumber(0)
+    };
+};
+
+/**
+ * Calculates a theoretical market exposure if it took all the 'best' orders it could
+ *  Returns this exposure and the orders that allow it to gain this exposure
+ * @param quote Amount of quote asset
+ * @param leverage leverage of the trade this could be passed in as quote leverage * quote
+ */
+export const calcSlippage: (
+    orderAmount: BigNumber,
+    leverage: BigNumber,
+    orders: FlatOrder[],
+) => { slippage: BigNumber, tradePrice: BigNumber} = (orderAmount, leverage, orders) => {
+    if (orders.length) {
+        // weighted average of the price, where the weights are the amounts at each price
+        let 
+            totalAmount = orderAmount.times(leverage),
+            sumOfWeights = new BigNumber(0),
+            totalUnits = new BigNumber(0);
+        for (const order of orders) {
+            const amount = order.amount;
+            const orderPrice = order.price;
+            // remainding units of accounts quote use
+            const r = totalAmount.minus(amount);
+            if (r.gte(0)) { // if it can eat the whole order
+                totalUnits = totalUnits.plus(orderPrice.times(amount));
+                sumOfWeights = sumOfWeights.plus(amount);
+                totalAmount = totalAmount.minus(amount); // subtract the remainder in units of underLying
+            } else { // eat a bit of the order nom nom
+                // if we get here the max amount we can is the remainder of deposit
+                if (!totalAmount.eq(0)) {
+                    totalUnits = totalUnits.plus(totalAmount.times(orderPrice));
+                    sumOfWeights = sumOfWeights.plus(totalAmount);
+                }
+                break;
+            }
+        }
+        const expectedPrice = orders[0].price;
+        // this is a weighted average of the prices and how much was taken at each price
+        const tradePrice = !totalUnits.eq(0) ? totalUnits.div(sumOfWeights) : expectedPrice;
+        return {
+            slippage: (expectedPrice.minus(tradePrice).abs()).div(expectedPrice),
+            tradePrice: tradePrice
+        };
+    }
+    return {
         slippage: new BigNumber(0),
         tradePrice: new BigNumber(0)
     };
