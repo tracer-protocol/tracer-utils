@@ -3,3 +3,4 @@ export * from './OME';
 export * from './Serialisation';
 export * from './Types/types';
 export * from './Accounting';
+export * from './Insurance';
