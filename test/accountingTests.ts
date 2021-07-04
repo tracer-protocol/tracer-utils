@@ -315,10 +315,10 @@ describe('calcPositionAfterTrade', () => {
     }, {
       amount: new BigNumber('1'),
       price: new BigNumber('5000'),
-      position: false // long
+      position: true // short
     }, new BigNumber('0.02')) // 2%
 
-    expect(newPosition.base).to.eql(new BigNumber('2'))
-    expect(newPosition.quote).to.eql(new BigNumber('4900')) // 2% fee on $5000 = $100
+    expect(newPosition.base).to.eql(new BigNumber('0'))
+    expect(newPosition.quote).to.eql(new BigNumber('14900')) // 2% fee on $5000 = $100
   })
 })
