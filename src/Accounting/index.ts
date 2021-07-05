@@ -367,10 +367,10 @@ export const calcPositionAfterTrade: (
     // long
     if(!trade.position) {
         newBase = position.base.plus(trade.amount);
-        newQuote = position.quote.minus(quoteChange.plus(fee));
+        newQuote = position.quote.minus(quoteChange).minus(fee);
     } else {
         newBase = position.base.minus(trade.amount);
-        newQuote = position.quote.plus(quoteChange.minus(fee));
+        newQuote = position.quote.plus(quoteChange).minus(fee);
     }
 
     return {
