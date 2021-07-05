@@ -1,4 +1,4 @@
-import { FlatOrder, FlatOrderWithSide, Position } from "../Types/accounting";
+import { FlatOrder, FlatOrderWithSide, Balance } from "../Types/accounting";
 import { BigNumber } from 'bignumber.js';
 
 export const RYAN_6 = new BigNumber(6); // a number accredited to our good friend Ryan Garner
@@ -348,16 +348,16 @@ export const calcUnrealised: (
 
 /**
  * Given a users position and a trade, returns the users new position after the trade has been applied
- * @param position the users current position
+ * @param balance the users current position
  * @param trade the trade to be performed
  * @param feeRate fee rate of the market eg. 0.02 for 2%
  * @returns the users new position
  */
 export const calcPositionAfterTrade: (
-    position: Position,
+    balance: Balance,
     trade: FlatOrderWithSide,
     feeRate: BigNumber
-) => Position = (position, trade, feeRate) => {
+) => Balance = (balance, trade, feeRate) => {
     const quoteChange = trade.amount.times(trade.price);
     const fee = calcFee(trade.amount, trade.price, feeRate);
 
@@ -366,11 +366,11 @@ export const calcPositionAfterTrade: (
 
     // long
     if(!trade.position) {
-        newBase = position.base.plus(trade.amount);
-        newQuote = position.quote.minus(quoteChange).minus(fee);
+        newBase = balance.base.plus(trade.amount);
+        newQuote = balance.quote.minus(quoteChange).minus(fee);
     } else {
-        newBase = position.base.minus(trade.amount);
-        newQuote = position.quote.plus(quoteChange).minus(fee);
+        newBase = balance.base.minus(trade.amount);
+        newQuote = balance.quote.plus(quoteChange).minus(fee);
     }
 
     return {
