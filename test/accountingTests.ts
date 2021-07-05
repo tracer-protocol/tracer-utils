@@ -15,6 +15,7 @@ import {
   calcLeverage,
   calcUnrealised,
   calcPositionAfterTrade,
+  calcFee
   // calcLiquidationPrice,
   // calcProfitableLiquidationPrice,
 } from "../src/Accounting"
@@ -320,5 +321,20 @@ describe('calcPositionAfterTrade', () => {
 
     expect(newPosition.base).to.eql(new BigNumber('0'))
     expect(newPosition.quote).to.eql(new BigNumber('14900')) // 2% fee on $5000 = $100
+  })
+})
+
+describe('calcFee', () => {
+  it('Calculates a 2% fee', () => {
+
+    const fee = calcFee(
+      new BigNumber('2'),
+      new BigNumber('5000'),
+      new BigNumber('0.02') // 2%
+    )
+
+    // 2 units at 5000 each = 10000
+    // 2% of 10000 = 200
+    expect(fee).to.eql(new BigNumber('200'))
   })
 })
