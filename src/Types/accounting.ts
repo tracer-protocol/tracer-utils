@@ -8,3 +8,8 @@ export type FlatOrder = {
 
 // position is false if long
 export type FlatOrderWithSide = FlatOrder & { position: boolean }
+
+export type Balance = {
+    quote: BigNumber,
+    base: BigNumber
+}

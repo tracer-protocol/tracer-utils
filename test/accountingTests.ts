@@ -5,7 +5,7 @@ var { expect } = chai;
 chai.use(require('chai-bignumber')());
 
 
-import { 
+import {
   calcTradeExposureFromQuoteAndLeverage,
   calcBorrowed,
   calcTotalMargin,
@@ -14,6 +14,8 @@ import {
   calcNotionalValue,
   calcLeverage,
   calcUnrealised,
+  calcPositionAfterTrade,
+  calcFee
   // calcLiquidationPrice,
   // calcProfitableLiquidationPrice,
 } from "../src/Accounting"
@@ -46,11 +48,11 @@ const orders = [
     {
         amount: new BigNumber(10),
         price: new BigNumber(1)
-    }, 
+    },
     {
         amount: new BigNumber(20),
         price: new BigNumber(1.1)
-    }, 
+    },
     {
         amount: new BigNumber(30),
         price: new BigNumber(1.2)
@@ -62,39 +64,39 @@ const noShorts = [
         amount: new BigNumber(10),
         price: new BigNumber(100),
         position: false
-    }, 
+    },
     {
         amount: new BigNumber(10),
         price: new BigNumber(110),
         position: false
-    }, 
+    },
 ]
 const pnlOrders  = [
     {
         amount: new BigNumber(10),
         price: new BigNumber(100),
         position: false
-    }, 
+    },
     {
         amount: new BigNumber(10),
         price: new BigNumber(110),
         position: false
-    }, 
+    },
     {
         amount: new BigNumber(20),
         price: new BigNumber(120),
         position: false
-    }, 
+    },
     {
         amount: new BigNumber(10),
         price: new BigNumber(100),
-        position: true 
-    }, 
+        position: true
+    },
     {
         amount: new BigNumber(10),
         price: new BigNumber(110),
-        position: true 
-    }, 
+        position: true
+    },
     {
         amount: new BigNumber(20),
         price: new BigNumber(120),
@@ -262,7 +264,7 @@ describe.skip('Testing CalcUnrealised', () => {
     let short = long.negated()
     // no base
     expect(calcUnrealised(new BigNumber(0), position1.price, pnlOrders), 'Short 10 units').to.be.bignumber.equal(0)
-    // no shorts 
+    // no shorts
     expect(calcUnrealised(short, position1.price, noShorts), 'No short orders').to.be.bignumber.equal(0)
     // avgPrice should be 100
     expect(calcUnrealised(short, position1.price, pnlOrders), 'Short 10 units').to.be.bignumber.equal(0)
@@ -287,5 +289,52 @@ describe.skip('Testing CalcUnrealised', () => {
     expect(calcUnrealised(long.times(3), position1.price, pnlOrders), 'Long 30 units').to.be.bignumber.equal(-300)
     expect(calcUnrealised(long.times(3), new BigNumber(110), pnlOrders), 'Long 30 units, Price 110').to.be.bignumber.equal(0)
     expect(calcUnrealised(long.times(3), new BigNumber(90), pnlOrders), 'Long 30 units, Price 90').to.be.bignumber.equal(-600)
+  })
+})
+
+describe('calcPositionAfterTrade', () => {
+  it('Calculates applying a long position', () => {
+
+    const newPosition = calcPositionAfterTrade({
+      quote: new BigNumber('10000'),
+      base: new BigNumber('1')
+    }, {
+      amount: new BigNumber('1'),
+      price: new BigNumber('5000'),
+      position: false // long
+    }, new BigNumber('0.02')) // 2%
+
+    expect(newPosition.base).to.eql(new BigNumber('2'))
+    expect(newPosition.quote).to.eql(new BigNumber('4900')) // 2% fee on $5000 = $100
+  })
+
+  it('Calculates applying a short position', () => {
+
+    const newPosition = calcPositionAfterTrade({
+      quote: new BigNumber('10000'),
+      base: new BigNumber('1')
+    }, {
+      amount: new BigNumber('1'),
+      price: new BigNumber('5000'),
+      position: true // short
+    }, new BigNumber('0.02')) // 2%
+
+    expect(newPosition.base).to.eql(new BigNumber('0'))
+    expect(newPosition.quote).to.eql(new BigNumber('14900')) // 2% fee on $5000 = $100
+  })
+})
+
+describe('calcFee', () => {
+  it('Calculates a 2% fee', () => {
+
+    const fee = calcFee(
+      new BigNumber('2'),
+      new BigNumber('5000'),
+      new BigNumber('0.02') // 2%
+    )
+
+    // 2 units at 5000 each = 10000
+    // 2% of 10000 = 200
+    expect(fee).to.eql(new BigNumber('200'))
   })
 })
