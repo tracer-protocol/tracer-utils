@@ -348,10 +348,9 @@ export const calcUnrealised: (
 
 /**
  * Given a users position and a trade, returns the users new position after the trade has been applied
- * @param base position
- * @param price current price
+ * @param position the users current position
+ * @param trade the trade to be performed
  * @param feeRate fee rate of the market eg. 0.02 for 2%
- * @requires the trade amount to be denoted in a token with 18 decimal places
  * @returns the users new position
  */
 export const calcPositionAfterTrade: (
@@ -382,9 +381,9 @@ export const calcPositionAfterTrade: (
 
 /**
  * Gets the fee of the trade given the amount, execution price and feeRate
- * @param amount
- * @param executionPrice
- * @param feeRate
+ * @param amount amount of base asset to trade
+ * @param executionPrice price at which to perform trade
+ * @param feeRate fee rate of the market
  * @returns the total fee to perform the trade
  */
 export const calcFee: (
