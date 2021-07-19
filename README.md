@@ -11,14 +11,14 @@ import { signOrders } from "@tracer-protocol/tracer-utils`
 await signOrders(...)
 ```
 # Packages
-## OME
-This package adds utility functions for interacting with the Tracer [OME](https://github.com/tracer-protocol/tracer-ome).
+## API
+This package adds utility functions for interacting with the Tracer [API](https://github.com/tracer-protocol/perpetual-api).
 
 Supported are the following functions
-- createMarket: create a new market on the OME. Markets are identified by their Ethereum address.
-- getMarkets: returns all markets currently registered with the OME
+- createMarket: create a new market on the API. Markets are identified by their Ethereum address.
+- getMarkets: returns all markets currently registered with the API
 - getOrders: returns all orders currently associated with a market
-- submitOrder: submits an EIP712 compliant signed order to the OME.
+- submitOrder: submits an EIP712 compliant signed order to the API.
 
 ## Signing
 This package adds utility functionality for signing orders via the EIP712 [specification](https://eips.ethereum.org/EIPS/eip-712). The contracts currently utilise V4 of the EIP712 spec. Both `eth_signTypedData` and `eth_signTypedData_v4` calls are supported due to how some wallet implementations handle this EIP.
@@ -38,12 +38,12 @@ Supported are the following functions
 
 # Development
 ## Contributing
-When creating a new package follow the structure of 
+When creating a new package follow the structure of
 
 ```
 -- src
     -- NewUtilsSpace
-        -- index.ts // export or main 
+        -- index.ts // export or main
         -- source.ts
         -- extra source files or folders
 ```
