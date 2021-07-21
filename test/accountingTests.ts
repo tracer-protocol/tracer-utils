@@ -211,13 +211,13 @@ describe.skip("Testing calcBorrowed", () => {
   })
 })
 
-describe.skip("Testing calcLeverage", () => {
+describe("Testing calcLeverage", () => {
   it('Basic Positions', () => {
     expect(calcLeverage(position1.quote, position1.base, position1.price), 'Position 1').to.be.bignumber.equal(5)
     expect(calcLeverage(position2.quote, position2.base, position2.price), 'Position 2').to.be.bignumber.equal(25)
   })
   it('Invalid Positions', () => {
-    expect(calcLeverage(invalid1.quote, invalid1.base, invalid1.price), 'Invalid 1').to.be.bignumber.equal(-1)
+    expect(calcLeverage(invalid1.quote, invalid1.base, invalid1.price), 'Invalid 1').to.be.bignumber.equal(0)
     expect(calcLeverage(invalid2.quote, invalid2.base, invalid2.price), 'Invalid 2').to.bignumber.equal(40)
   })
 })
