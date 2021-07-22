@@ -8,11 +8,12 @@ export const WAD_BASE = new BigNumber(10).pow(18)
 
 /**
  * Calculates the leverage multiplier the user currently has based on their position and a given price
- * @returns the leverage of the user at a given position or -1 if the position is invalid this represents infinite leverage
+ * @returns the leverage of the user at a given position 
+ * @returns 0 if the position is not leveraged or invalid
  */
 export const calcLeverage: (quote: BigNumber, base: BigNumber, price: BigNumber) => BigNumber = (quote, base, price) => {
     const margin = calcTotalMargin(quote, base, price);
-    if (margin.lte(0)) return new BigNumber(-1)
+    if (margin.lte(0)) return new BigNumber(0)
     return calcNotionalValue(base, price).div(margin)
 };
 
