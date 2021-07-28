@@ -8,6 +8,8 @@ export const API_CODES = {
   ORDER_FULLY_MATCHED: 'order_fully_matched',
   ORDER_PARTIALLY_MATCHED: 'order_partially_matched',
   ORDER_CANCELLED: 'order_cancelled',
+  ORDER_NOT_FOUND: 'order_not_found',
+  BOOK_NOT_FOUND: 'book_not_found',
   BOOK_CREATED: 'book_created',
   BOOK_EXISTS: 'book_exists',
   INVALID_MAKER: 'invalid_maker',
