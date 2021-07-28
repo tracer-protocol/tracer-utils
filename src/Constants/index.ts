@@ -1,4 +1,4 @@
-const API_CODES = {
+export const API_CODES = {
   INVALID_SIGNATURE: 'invalid_signature',
   UNDER_MARGIN: 'under_margin',
   INVALID_CREATED_TIMESTAMP: 'invalid_created_timestamp',
@@ -14,8 +14,4 @@ const API_CODES = {
   INVALID_TAKER: 'invalid_taker',
   MARKET_MISMATCH: 'market_mismatch',
   PRICE_NOT_CROSSED: 'price_not_crossed'
-}
-
-module.exports = {
-  API_CODES
 }
