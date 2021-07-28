@@ -7,7 +7,7 @@ export const API_CODES = {
   ORDER_PLACED: 'order_placed',
   ORDER_FULLY_MATCHED: 'order_fully_matched',
   ORDER_PARTIALLY_MATCHED: 'order_partially_matched',
-  CANCELLED: 'cancelled',
+  ORDER_CANCELLED: 'order_cancelled',
   BOOK_CREATED: 'book_created',
   BOOK_EXISTS: 'book_exists',
   INVALID_MAKER: 'invalid_maker',
