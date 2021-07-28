@@ -17,5 +17,6 @@ export const API_CODES = {
   INVALID_TAKER: 'invalid_taker',
   MARKET_MISMATCH: 'market_mismatch',
   PRICE_NOT_CROSSED: 'price_not_crossed',
-  ORDERS_SAME_SIDE: 'orders_same_side'
+  ORDERS_SAME_SIDE: 'orders_same_side',
+  OPERATION_FAILED: 'operation_failed'
 }
