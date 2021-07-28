@@ -1,0 +1,22 @@
+export const API_CODES = {
+  INVALID_SIGNATURE: 'invalid_signature',
+  UNDER_MARGIN: 'under_margin',
+  INVALID_CREATED_TIMESTAMP: 'invalid_created_timestamp',
+  INVALID_EXPIRY_TIMESTAMP: 'invalid_expiry_timestamp',
+  NOT_WHITELISTED: 'not_whitelisted',
+  ORDER_PLACED: 'order_placed',
+  ORDER_FULLY_MATCHED: 'order_fully_matched',
+  ORDER_PARTIALLY_MATCHED: 'order_partially_matched',
+  ORDER_CANCELLED: 'order_cancelled',
+  ORDER_EXISTS: 'order_exists',
+  ORDER_NOT_FOUND: 'order_not_found',
+  BOOK_NOT_FOUND: 'book_not_found',
+  BOOK_CREATED: 'book_created',
+  BOOK_EXISTS: 'book_exists',
+  INVALID_MAKER: 'invalid_maker',
+  INVALID_TAKER: 'invalid_taker',
+  MARKET_MISMATCH: 'market_mismatch',
+  PRICE_NOT_CROSSED: 'price_not_crossed',
+  ORDERS_SAME_SIDE: 'orders_same_side',
+  OPERATION_FAILED: 'operation_failed'
+}
