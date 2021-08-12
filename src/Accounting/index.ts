@@ -244,7 +244,7 @@ export const calcTradeExposureFromQuoteAndLeverage: (
 
         const expectedPrice = orders[0].price;
         // this is a weighted average of the prices and how much was taken at each price
-        const tradePrice = !totalUnits.eq(0) ? totalUnits.div(sumOfWeights) : expectedPrice;
+        const tradePrice = !totalUnits.eq(0) && !sumOfWeights.eq(0) ? totalUnits.div(sumOfWeights) : expectedPrice;
         return {
             exposure: exposure,
             slippage: (expectedPrice.minus(tradePrice).abs()).div(expectedPrice),
@@ -266,13 +266,12 @@ export const calcTradeExposureFromQuoteAndLeverage: (
  */
 export const calcSlippage: (
     orderAmount: BigNumber,
-    leverage: BigNumber,
     orders: FlatOrder[],
-) => { slippage: BigNumber, tradePrice: BigNumber} = (orderAmount, leverage, orders) => {
+) => { slippage: BigNumber, tradePrice: BigNumber} = (orderAmount, orders) => {
     if (orders.length) {
         // weighted average of the price, where the weights are the amounts at each price
         let
-            totalAmount = orderAmount.times(leverage),
+            totalAmount = Number.isNaN(orderAmount.toNumber()) ? new BigNumber(0) : orderAmount,
             sumOfWeights = new BigNumber(0),
             totalUnits = new BigNumber(0);
         for (const order of orders) {
@@ -295,7 +294,7 @@ export const calcSlippage: (
         }
         const expectedPrice = orders[0].price;
         // this is a weighted average of the prices and how much was taken at each price
-        const tradePrice = !totalUnits.eq(0) ? totalUnits.div(sumOfWeights) : expectedPrice;
+        const tradePrice = (!sumOfWeights.eq(0) && !Number.isNaN(sumOfWeights)) ? totalUnits.div(sumOfWeights) : expectedPrice;
         return {
             slippage: (expectedPrice.minus(tradePrice).abs()).div(expectedPrice),
             tradePrice: tradePrice
