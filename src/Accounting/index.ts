@@ -411,7 +411,7 @@ export const fromWad: (wad: string) => BigNumber = (wad: string) => new BigNumbe
 export const calcFundingRatePayment: (
     base:BigNumber, globalFundingRate:BigNumber, userFundingRate: BigNumber
 ) => BigNumber = (base, globalFundingRate, userFundingRate) => {
-    return (base.times(globalFundingRate.minus(userFundingRate)))
+    return base.times(globalFundingRate.minus(userFundingRate))
 }
 
 /**
@@ -436,7 +436,9 @@ export const calcInsuranceFundingRatePayment: (
 ) => BigNumber = (quote, base, fairPrice, fundingRates, insuranceFundingRates) => {
     // this calculation needs to be done after factoring in the amount owed by the tracer funding rate
     const newQuote = quote.minus(calcFundingRatePayment(base, fundingRates.globalFundingRate, fundingRates.userFundingRate))
+    console.log(newQuote.toNumber(), "Inside")
     const leveragedNotionalValue = calcNotionalValue(base, fairPrice).minus(calcTotalMargin(newQuote, base, fairPrice))
+    console.log(leveragedNotionalValue.toNumber(), calcTotalMargin(newQuote, base, fairPrice).toNumber())
 
     // the insuranceDelta will get paid from the users balances and into the insurance pool
     const insuranceDelta = calcFundingRatePayment(
