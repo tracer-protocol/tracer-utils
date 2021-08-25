@@ -15,7 +15,9 @@ import {
   calcLeverage,
   calcUnrealised,
   calcPositionAfterTrade,
-  calcFee
+  calcFee,
+  calcFundingRatePayment,
+  calcInsuranceFundingRatePayment
   // calcLiquidationPrice,
   // calcProfitableLiquidationPrice,
 } from "../src/Accounting"
@@ -337,4 +339,188 @@ describe('calcFee', () => {
     // 2% of 10000 = 200
     expect(fee).to.eql(new BigNumber('200'))
   })
+})
+
+describe("applyFunding", async () => {
+    context(
+        "When the global rate is greater than the user rate & user has a long position",
+        async () => {
+            it("applies a negative change to the user's position", async () => {
+                const quote = new BigNumber(0);
+                const base = new BigNumber(50);
+
+                const globalCumulativeRate = new BigNumber(2300);
+                const userCumulativeRate = new BigNumber(2200);
+
+				// Funding applied (i.e. quote diff) will be (50 base * (100 quote / base) = 5000 quote
+				// Since user had zero quote, they should have -5000 now (take negative of funding applied)
+				const newPosition = quote.minus(calcFundingRatePayment(base, globalCumulativeRate, userCumulativeRate))
+                expect(newPosition).to.eql(
+					new BigNumber(-5000)
+                )
+            })
+        }
+    )
+
+    context(
+        "When the global rate is less than the user rate & user has a long position",
+        async () => {
+            it("applies a positive change to the user's position", async () => {
+                const quote = new BigNumber(0);
+                const base = new BigNumber(50);
+
+                const globalCumulativeRate = new BigNumber(2200);
+                const userCumulativeRate = new BigNumber(2300);
+
+                // Funding applied (i.e. quote diff) will be (50 base * (100 quote / base) = -5000 quote
+                // Since user had zero quote, they should have 5000 now (take negative of funding applied)
+				const newQuote = quote.minus(calcFundingRatePayment(base, globalCumulativeRate, userCumulativeRate))
+                expect(newQuote).to.eql(
+                    new BigNumber(5000)
+                )
+            })
+        }
+    )
+
+    context(
+        "When the global rate is greater than the user rate & user has a short position",
+        async () => {
+            it("applies a positive change to the user's position", async () => {
+                const quote = new BigNumber(0);
+                const base = new BigNumber(-50);
+
+                const globalCumulativeRate = new BigNumber(2300);
+                const userCumulativeRate = new BigNumber(2200);
+
+                // Funding applied (i.e. quote diff) will be (-50 base * (100 quote / base) = -5000 quote
+                // Since user had zero quote, they should have 5000 now (take negative of funding applied)
+				const newQuote = quote.minus(calcFundingRatePayment(base, globalCumulativeRate, userCumulativeRate))
+                expect(newQuote).to.eql(
+                    new BigNumber(5000)
+                )
+            })
+        }
+    )
+
+    context(
+        "When the global rate is less than the user rate & user has a short position",
+        async () => {
+            it("applies a negative change to the user's position", async () => {
+                const quote = new BigNumber(0);
+                const base = new BigNumber(-50);
+
+                const globalCumulativeRate = new BigNumber(2200);
+                const userCumulativeRate = new BigNumber(2300);
+
+                // Funding applied (i.e. quote diff) will be (-50 base * (-100 quote / base) = 5000 quote
+                // Since user had zero quote, they should have -5000 now (take negative of funding applied)
+				const newQuote = quote.minus(calcFundingRatePayment(base, globalCumulativeRate, userCumulativeRate))
+                expect(newQuote).to.eql(
+                    new BigNumber(-5000)
+                )
+            })
+        }
+    )
+})
+
+describe("applyInsurance", async () => {
+	context("when insurance funding has increased", async () => {
+		it("returns the correct insurance/user positions", async () => {
+			const quote = new BigNumber(0);
+			const base = new BigNumber(110);
+
+			const insuranceGlobalRate = {
+				globalFundingRate: new BigNumber(10),
+				userFundingRate: new BigNumber(5)
+			} 
+
+			// this funding rate is the amount that will get the balance to
+			// totalLeveraged value of 100
+			const fundingRate = {
+				globalFundingRate: new BigNumber(10+(1/11)),
+				userFundingRate: new BigNumber(10)
+			}
+
+			const fairPrice = new BigNumber(1);
+			
+			// expected change in quote = (insurance rate - user rate) * leveraged value
+			// (10 - 5) * 100 = 500
+			const newQuote = quote.minus(calcInsuranceFundingRatePayment(
+				quote, base, fairPrice, fundingRate, insuranceGlobalRate
+			))
+			console.log(newQuote.toNumber())
+
+			expect(newQuote).to.be.equal(
+				new BigNumber(-500)
+			)
+
+
+			// let expectedUserPosition = [
+			// 	ethers.utils.parseEther("-500"),
+			// 	ethers.utils.parseEther("110"),
+			// ]
+			// let expectedInsurancePosition = [
+			// 	ethers.utils.parseEther("500"),
+			// 	ethers.utils.parseEther("0"),
+			// ]
+
+			// let result = await libPrices.applyInsurance(
+			// 	userPosition,
+			// 	insurancePosition,
+			// 	insuranceGlobalRate,
+			// 	insuranceUserRate,
+			// 	totalLeveragedValue
+			// )
+			// let newUserPosition = result[0]
+			// let newInsurancePosition = result[1]
+
+			// await expect(newUserPosition[0]).to.be.equal(
+			// 	expectedUserPosition[0]
+			// )
+			// await expect(newUserPosition[1]).to.be.equal(
+			// 	expectedUserPosition[1]
+			// )
+			// await expect(newInsurancePosition[0]).to.be.equal(
+			// 	expectedInsurancePosition[0]
+			// )
+			// await expect(newInsurancePosition[1]).to.be.equal(
+			// 	expectedInsurancePosition[1]
+			// )
+		})
+	})
+
+	// context("when insurance funding has decreased", async () => {
+	// 	it("does not change user positions", async () => {
+	// 		let userPosition = [
+	// 			ethers.utils.parseEther("0"),
+	// 			ethers.utils.parseEther("110"),
+	// 		] // quote, base
+	// 		let insurancePosition = [
+	// 			ethers.utils.parseEther("0"),
+	// 			ethers.utils.parseEther("0"),
+	// 		] // quote, base
+	// 		let insuranceGlobalRate = [0, 0, ethers.utils.parseEther("2")] // timestamp, fundingRate, cumulativeFundingRate
+	// 		let insuranceUserRate = [0, 0, ethers.utils.parseEther("5")] // timestamp, fundingRate, cumulativeFundingRate
+	// 		let totalLeveragedValue = ethers.utils.parseEther("100")
+
+	// 		let result = await libPrices.applyInsurance(
+	// 			userPosition,
+	// 			insurancePosition,
+	// 			insuranceGlobalRate,
+	// 			insuranceUserRate,
+	// 			totalLeveragedValue
+	// 		)
+	// 		let newUserPosition = result[0]
+	// 		let newInsurancePosition = result[1]
+
+	// 		await expect(newUserPosition[0]).to.be.equal(userPosition[0])
+	// 		await expect(newUserPosition[1]).to.be.equal(userPosition[1])
+	// 		await expect(newInsurancePosition[0]).to.be.equal(
+	// 			insurancePosition[0]
+	// 		)
+	// 		await expect(newInsurancePosition[1]).to.be.equal(
+	// 			insurancePosition[1]
+	// 		)
+	// 	})
+	// })
 })
