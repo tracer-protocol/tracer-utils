@@ -397,3 +397,53 @@ export const calcFee: (
 }
 
 export const fromWad: (wad: string) => BigNumber = (wad: string) => new BigNumber(wad).div(WAD_BASE)
+
+
+/**
+ * Calculates the amount in quote currency the user is required to pay. 
+ * @param quote 
+ * @param base 
+ * @param globalFundingRate global cumulative fundingRate
+ * @param userFundingRate user cumulative funding rate
+ * @requires the cumulative funding rates not current funding rate
+ * @returns the quote value required to pay based on the two funding rates
+ */
+export const calcFundingRatePayment: (
+    base:BigNumber, globalFundingRate:BigNumber, userFundingRate: BigNumber
+) => BigNumber = (base, globalFundingRate, userFundingRate) => {
+    return (base.times(globalFundingRate.minus(userFundingRate)))
+}
+
+/**
+ * 
+ * @param quote Amount of quote asset
+ * @param base Amount of base asset, this is considered the position of the account
+ * @param price The given price of the asset
+ * @param fundingRates the tracer funding rates an object containing globalFundingRate and userFundingRate
+ * @param insuranceFundingRates the insurance funding rates an object containing globalFundingRate and userFundingRate
+ * @returns 
+ */
+export const calcInsuranceFundingRatePayment: (
+    quote: BigNumber, base: BigNumber,
+    fairPrice: BigNumber,
+    fundingRates: {
+        globalFundingRate: BigNumber,
+        userFundingRate: BigNumber
+    }, insuranceFundingRates: {
+        globalFundingRate: BigNumber,
+        userFundingRate: BigNumber
+    }
+) => BigNumber = (quote, base, fairPrice, fundingRates, insuranceFundingRates) => {
+    // this calculation needs to be done after factoring in the amount owed by the tracer funding rate
+    const newQuote = quote.minus(calcFundingRatePayment(base, fundingRates.globalFundingRate, fundingRates.userFundingRate))
+    const leveragedNotionalValue = calcNotionalValue(base, fairPrice).minus(calcTotalMargin(newQuote, base, fairPrice))
+
+    // the insuranceDelta will get paid from the users balances and into the insurance pool
+    const insuranceDelta = calcFundingRatePayment(
+        leveragedNotionalValue, insuranceFundingRates.globalFundingRate, insuranceFundingRates.userFundingRate
+    )
+
+    // so if the insuranceDelta is greater than 0 the amount the user will pay is insuranceDelta.
+    // but since this is an amount being paid by the user we return the negated version
+    return insuranceDelta.gt(0) ? insuranceDelta.negated() : new BigNumber(0);
+}
